@@ -1,0 +1,36 @@
+{
+  "task_id": "asset-p1-backend-monitoring-rev2",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "backend-developer-monitoring.webp",
+  "prompt_source": "docs/ASSET_BATCH_01.md",
+  "prompt_section": "## 3. CHARACTER B \u2014 Backend Developer \u2014 exact final prompt",
+  "prompt_suffix": "IDENTITY \u2014 the SAME approved person shown in reference #1 (Backend Developer master); preserve exactly, do NOT redesign: same face, short dark-brown undercut (#3A2B22) with slightly longer top, neat short stubble/beard, warm deeper skin (#D99A6C), dark technical zip jacket over a dark shirt, dark trousers, visible company lanyard, cyan/teal accent (#3BE8E0), taller broader build, calm technical methodical. He must remain the SAME recognizable character \u2014 only the POSE changes. STATE = MONITORING (must read as 'monitoring systems' from POSTURE ALONE): standing tall and alert with arms crossed over the chest, weight steady, head slightly raised and gaze directed forward/up as if watching a status wall, a composed watchful expression. CRITICAL: draw ONLY the standalone person \u2014 absolutely NO monitor, NO screen, NO computer, NO desk, NO dashboard, NO furniture and NO props of any kind in the image; convey monitoring purely through the alert arms-crossed posture and watchful gaze. CAMERA: true 3/4 top-down ISOMETRIC, body turned about 30-45 degrees, slight top-down, feet aligned to the isometric floor direction \u2014 not front-facing, not profile, not a flat sticker. STYLE: the SAME fine pixel density, thin selective outlines, 3-tone shading and soft ambient occlusion as the IT/Dev floor (reference #2). LIGHTING: warm key light from the upper-left, softer darker shading lower-right, a subtle cyan monitor rim light, gentle ambient occlusion. Standalone single character, fully TRANSPARENT background \u2014 NO room, floor, desk, chair, screen, shadow plate, scenery, UI, text, logo or watermark; full body with nothing cropped. REFERENCE PRIORITY: #1 approved character master controls IDENTITY and must be preserved exactly; #2 IT/Dev floor controls perspective, pixel density and lighting; #3 original office image controls the general game-art direction.",
+  "reference_images": [
+    "references/approved-characters/it-dev/backend-developer-master.webp",
+    "apps/web/public/assets/office/floors/it-dev/it-dev-floor-base.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/characters/composited/it-dev/backend-developer-monitoring.webp",
+  "source_output_path": "outputs/source/backend-developer-monitoring-rev2-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 1.0,
+  "transparency_requested": true,
+  "transparency_status": "pending",
+  "visual_lab_url": "http://localhost:3000/visual-lab/it-dev-floor",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "batch": "P1",
+    "character": "B - Backend Developer",
+    "state": "monitoring",
+    "revision": 2
+  },
+  "updated_at": "2026-07-06T16:12:58.643988+00:00",
+  "error_message": null
+}

@@ -1,0 +1,26 @@
+{
+  "task_id": "asset-batch01-backend-idle",
+  "status": "completed",
+  "model": "gpt-image-1",
+  "api_key_detected": true,
+  "reference_found": true,
+  "reference_path": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\office\\floors\\it-dev\\it-dev-floor-base.webp",
+  "reference_width": 1600,
+  "reference_height": 600,
+  "reference_format": "WEBP",
+  "prompt_source": "docs/ASSET_BATCH_01.md",
+  "source_file": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\source\\backend-developer-idle-source.png",
+  "final_file": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\characters\\composited\\it-dev\\backend-developer-idle.webp",
+  "final_width": 256,
+  "final_height": 384,
+  "final_format": "WEBP",
+  "transparency_status": "transparent",
+  "visual_lab_url": "http://localhost:3000/visual-lab/it-dev-floor",
+  "visual_lab_screenshot": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\screenshots\\backend-developer-idle-latest.png",
+  "screenshot_status": "captured",
+  "errors": [
+    "references_used: 2"
+  ],
+  "started_at": "2026-07-06T14:50:34.449334+00:00",
+  "completed_at": "2026-07-06T14:52:37.133923+00:00"
+}

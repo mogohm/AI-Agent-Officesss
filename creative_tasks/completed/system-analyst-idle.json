@@ -1,0 +1,36 @@
+{
+  "task_id": "asset-batch01-analyst-idle",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "system-analyst-idle.webp",
+  "prompt_source": "docs/ASSET_BATCH_01.md",
+  "prompt_section": "## 4. CHARACTER C \u2014 System Analyst \u2014 exact final prompt",
+  "prompt_suffix": "IDENTITY LOCK (Character C, permanent \u2014 a DIFFERENT person from Characters A and B): female-presenting System Analyst, shoulder-length dark-brown hair tied in a LOW BUN (#3A2B22), slim glasses, medium skin tone (#E8B48C), thoughtful organized expression, slightly SHORTER and SLIMMER build; a light blouse under a soft cardigan with a subtle PURPLE accent (#A98BFF), tailored trousers, flats, holding a small NOTEBOOK or TABLET; thoughtful, organized, professional. DIFFERENTIATION (must read at small scale): low bun, slim glasses, soft cardigan (NOT a hoodie, NOT a technical jacket), a notebook/tablet in hand, purple accent (NOT blue, NOT teal), a slightly shorter slimmer feminine silhouette. Do NOT copy Character A's hairstyle/hoodie/blue accent, or Character B's undercut/beard/technical jacket/lanyard/teal accent, or male body proportions \u2014 she is clearly a third, different adult. POSE: idle \u2014 standing near the architecture workspace calmly reviewing the small notebook/tablet, thoughtful expression, relaxed shoulders, natural asymmetry, slightly turned toward the workstation, not rigid, not posing; the notebook/tablet must remain readable as part of her silhouette. CAMERA: true 3/4 top-down ISOMETRIC view, body turned about 30 to 45 degrees from camera, slight top-down so the top plane of shoulders and head is visible, feet aligned to the isometric floor direction \u2014 NOT front-facing, NOT profile, NOT a flat sticker. STYLE: draw in the SAME fine pixel-art density, thin selective outlines, 3-tone shading and soft ambient occlusion as the provided IT/Dev floor (reference #1) \u2014 not chunky coarse pixels, not retro RPG, not anime, not realistic, not vector. LIGHTING: warm key light from the upper-left with an amber highlight, softer darker shading toward the lower-right, a subtle cyan monitor rim light, gentle ambient occlusion \u2014 no flat frontal lighting. A single standalone office-worker sprite sized to sit naturally among the room's desks and chairs. Fully TRANSPARENT background, no room, no floor, no ground or shadow plate, no scenery, no UI, no text, no logo, no watermark, full body with nothing cropped. Reference #1 (IT/Dev floor) drives pixel density, lighting and perspective; reference #2 (AI office image) drives overall art style. She must look painted by the same pixel artist as the floor and physically belong in that room \u2014 an adult from the same world as the approved Frontend and Backend developers but clearly a different person.",
+  "reference_images": [
+    "apps/web/public/assets/office/floors/it-dev/it-dev-floor-base.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/characters/composited/it-dev/system-analyst-idle.webp",
+  "source_output_path": "outputs/source/system-analyst-idle-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 1.0,
+  "transparency_requested": true,
+  "transparency_status": "pending",
+  "visual_lab_url": "http://localhost:3000/visual-lab/it-dev-floor",
+  "screenshot_after_generation": true,
+  "metadata": {
+    "batch": "01",
+    "phase": "1B",
+    "department": "IT / Development",
+    "asset_role": "character_idle_master",
+    "character": "C - System Analyst"
+  },
+  "updated_at": "2026-07-06T15:05:37.602783+00:00",
+  "error_message": null
+}

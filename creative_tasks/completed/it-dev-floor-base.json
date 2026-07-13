@@ -1,0 +1,33 @@
+{
+  "task_id": "asset-batch01-it-dev-floor",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "it-dev-floor-base.webp",
+  "prompt_source": "docs/ASSET_BATCH_01.md",
+  "prompt_section": "## 1. FLOOR \u2014 exact final generation prompt",
+  "prompt_suffix": "No people. No workers. No human silhouettes. No robots. Empty chairs only. One IT / Dev office floor. Three readable work zones. No text. No logos. No watermark. Premium detailed isometric pixel art. Room fills the composition. No large empty areas.",
+  "reference_images": [
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/office/floors/it-dev/it-dev-floor-base.webp",
+  "source_output_path": "outputs/source/it-dev-floor-base-source.png",
+  "expected_width": 1600,
+  "expected_height": 600,
+  "aspect_ratio": "8:3",
+  "model": "gpt-image-2",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": false,
+  "transparency_status": "pending_cleanup",
+  "visual_lab_url": "http://localhost:3000/visual-lab/it-dev-floor",
+  "screenshot_after_generation": true,
+  "metadata": {
+    "batch": "01",
+    "department": "IT / Development",
+    "asset_role": "floor_base"
+  },
+  "updated_at": "2026-07-06T08:21:28.052486+00:00",
+  "error_message": null
+}

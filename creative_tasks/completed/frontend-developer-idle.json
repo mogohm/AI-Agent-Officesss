@@ -1,0 +1,38 @@
+{
+  "task_id": "asset-batch01-frontend-idle-rev2",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "frontend-developer-idle.webp",
+  "prompt_source": "docs/ASSET_BATCH_01.md",
+  "prompt_section": "## 2. CHARACTER A \u2014 Frontend Developer \u2014 exact final prompt",
+  "prompt_suffix": "REVISION \u2014 fix scene integration. Draw in the SAME fine pixel-art style, resolution and brushwork as the provided IT/Dev office floor (reference #1): fine small pixels, thin selective outlines, detailed soft shading with gentle ambient occlusion \u2014 NOT chunky large game-sprite pixels. CAMERA: true 3/4 top-down ISOMETRIC view of the character \u2014 body turned about 30 to 45 degrees away from camera (three-quarter), a slight top-down angle so the top plane of the head and shoulders is visible, feet aligned to the isometric floor direction. NOT front-facing, NOT flat, NOT a profile, NOT a sticker. LIGHTING must match the room: warm key light from the upper-left with an amber highlight, softer darker shading toward the lower-right, a faint cyan monitor rim light on one edge, gentle ambient occlusion \u2014 no flat frontal lighting. POSE: relaxed idle, ready to work, natural asymmetry \u2014 one foot slightly offset, shoulders relaxed, hands natural, not stiff, not posing. IDENTITY LOCK (same permanent person \u2014 do not change into someone else): young male-presenting Frontend Developer, short tousled near-black hair (#2B2B3A) with side-swept fringe, light-medium skin (#F2C9A0), no facial hair, charcoal-navy zip hoodie over a plain tee, slim dark jeans, sneakers, slim medium build, creative focused modern energetic. Make these MORE readable: over-ear headphones CLEARLY visible resting around the neck, and a readable blue accent (#5B8CFF) on the hoodie. A SMALL office-worker sprite sized to sit naturally among the room's desks and chairs (not oversized). Standalone single character only, fully TRANSPARENT background, no room, no floor, no ground or shadow plate, no scenery, no UI, no text, no logo, no watermark, full body with nothing cropped. REFERENCE PRIORITY: use reference #1 (IT/Dev floor) for pixel density, lighting and perspective; reference #2 (AI office image) for overall art style; reference #3 (previous character) ONLY for identity continuity (same face/outfit) \u2014 but REDRAW it in correct 3/4 isometric perspective with the floor's finer pixel density and lighting. It must look painted by the same pixel artist as the floor and physically belong in that room.",
+  "reference_images": [
+    "apps/web/public/assets/office/floors/it-dev/it-dev-floor-base.webp",
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/characters/composited/it-dev/frontend-developer-idle.webp"
+  ],
+  "output_path": "apps/web/public/assets/characters/composited/it-dev/frontend-developer-idle.webp",
+  "source_output_path": "outputs/source/frontend-developer-idle-rev2-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 1.0,
+  "transparency_requested": true,
+  "transparency_status": "pending",
+  "visual_lab_url": "http://localhost:3000/visual-lab/it-dev-floor",
+  "screenshot_after_generation": true,
+  "metadata": {
+    "batch": "01",
+    "phase": "1B-revision",
+    "department": "IT / Development",
+    "asset_role": "character_idle_master",
+    "character": "A - Frontend Developer",
+    "revision": 2
+  },
+  "updated_at": "2026-07-06T08:49:02.880305+00:00",
+  "error_message": null
+}

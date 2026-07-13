@@ -1,0 +1,37 @@
+{
+  "task_id": "theme-reference-bright-art-design-floor-rev",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "art-design-floor.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Art & Design bright floor revision",
+  "prompt_suffix": "Failed criteria being corrected: (1) a large black/dark empty corner filled the right edge - the bright room must fill the ENTIRE frame; (2) department identity was weak - UI/UX and illustration workstations with visible equipment are required, not just a lounge; (3) lighting was dim/dusk - must be bright daylight.",
+  "reference_images": [
+    "references/style-lock/reference-floor-isometric-sample.png",
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/office/floors/art-design/art-design-floor-base.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/floors/art-design-floor.webp",
+  "source_output_path": "outputs/source/reference-bright-art-design-floor-rev-source.png",
+  "expected_width": 1600,
+  "expected_height": 600,
+  "aspect_ratio": "8:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": false,
+  "visual_lab_url": "http://localhost:3000/visual-lab/reference-clone",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "bright-tower-floor-expansion",
+    "theme": "reference-bright",
+    "department": "Art & Design",
+    "asset_role": "floor_base",
+    "order": 3,
+    "note": "TARGETED REVISION (the one allowed). v1 rejected: black dead zone right edge, weak dept identity, dim lighting. v1 archived at floors/archive/art-design-floor-v1-darkcorner-rejected.webp"
+  },
+  "updated_at": "2026-07-06T20:37:32.118130+00:00",
+  "error_message": null
+}

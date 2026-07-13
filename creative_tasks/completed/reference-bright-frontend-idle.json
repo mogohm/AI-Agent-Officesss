@@ -1,0 +1,39 @@
+{
+  "task_id": "theme-reference-bright-frontend-idle",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "frontend-developer-idle.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Bright Frontend Developer idle",
+  "prompt_suffix": "True transparent alpha background is mandatory - a single standalone character sprite with nothing behind him.",
+  "reference_images": [
+    "references/style-lock/reference-floor-isometric-sample.png",
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/themes/reference-bright/floors/engineering-floor.webp",
+    "apps/web/public/assets/characters/composited/it-dev/frontend-developer-idle.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/characters/engineering/frontend-developer-idle.webp",
+  "source_output_path": "outputs/source/reference-bright-frontend-idle-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "visual_lab_url": "http://localhost:3000/visual-lab/reference-clone",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "bright-character-style-validation",
+    "theme": "reference-bright",
+    "department": "Engineering",
+    "character": "frontend-developer",
+    "state": "idle",
+    "asset_role": "character_master",
+    "note": "FIRST bright character - style gate before any expansion. Dark FE master used for identity semantics only."
+  },
+  "updated_at": "2026-07-07T04:11:51.727136+00:00",
+  "error_message": null
+}

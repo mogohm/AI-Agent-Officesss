@@ -1,0 +1,34 @@
+{
+  "task_id": "theme-reference-bright-tower-shell-wide",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "reference-bright-tower-shell-v3-wide.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Unified tower shell wide",
+  "prompt_suffix": "THE single correction versus reference #2: WIDTH. Target ~0.71 width-to-height like reference #1's tower - broad, room-dominant, six wide openings. A narrow skyscraper is a failure. Below 0.62 width-to-height is a failure.",
+  "reference_images": [
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/themes/reference-bright/buildings/reference-bright-tower-shell-v2-slim.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/buildings/reference-bright-tower-shell-v3-wide.webp",
+  "source_output_path": "outputs/source/reference-bright-tower-shell-wide-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "visual_lab_url": "http://localhost:3000/visual-lab/unified-tower",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "wide-unified-tower-finalization",
+    "theme": "reference-bright",
+    "asset_role": "tower_shell",
+    "note": "AUTHORIZED single wide-proportion generation. Slim shell preserved as v2. No V4."
+  },
+  "updated_at": "2026-07-08T05:07:10.684502+00:00",
+  "error_message": null
+}

@@ -1,0 +1,34 @@
+{
+  "task_id": "theme-reference-bright-tower-shell-rev",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "reference-bright-tower-shell.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Unified tower shell revision",
+  "prompt_suffix": "The ONLY correction versus reference #2: EXACTLY SIX floor openings (reference #2 has five). Everything else - style, architecture, roof, elevator shaft, B1, transparency - stays identical.",
+  "reference_images": [
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/themes/reference-bright/buildings/archive/reference-bright-tower-shell-v1-fivefloors.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/buildings/reference-bright-tower-shell.webp",
+  "source_output_path": "outputs/source/reference-bright-tower-shell-rev-source.png",
+  "expected_width": 1024,
+  "expected_height": 1536,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "visual_lab_url": "http://localhost:3000/visual-lab/unified-tower",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "unified-reference-tower-rebuild",
+    "theme": "reference-bright",
+    "asset_role": "tower_shell",
+    "note": "TARGETED REVISION (the one allowed): v1 had 5 floor openings, need 6. v1 archived."
+  },
+  "updated_at": "2026-07-08T04:49:19.057128+00:00",
+  "error_message": null
+}

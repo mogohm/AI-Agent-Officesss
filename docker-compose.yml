@@ -1,0 +1,62 @@
+# =====================================================================
+# AI Agent Office — full stack (optional). Bring up with:
+#   docker compose up --build
+# Services: PostgreSQL, FastAPI API, worker, Next.js web.
+# =====================================================================
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ai_office
+      POSTGRES_PASSWORD: ai_office
+      POSTGRES_DB: ai_office
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_office"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./server
+    environment:
+      DATABASE_URL: postgresql+psycopg://ai_office:ai_office@db:5432/ai_office
+      CORS_ORIGINS: http://localhost:3000
+      AUTO_SEED: "true"
+      WORKSPACES_ROOT: /app/workspaces/companies
+    ports:
+      - "8000:8000"
+    volumes:
+      - workspaces:/app/workspaces/companies
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build: ./server
+    command: ["python", "-m", "worker.main"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://ai_office:ai_office@db:5432/ai_office
+      WORKSPACES_ROOT: /app/workspaces/companies
+    volumes:
+      - workspaces:/app/workspaces/companies
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./apps/web
+    environment:
+      # The browser talks to the API directly; use your public API URL in prod.
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  db_data:
+  workspaces:

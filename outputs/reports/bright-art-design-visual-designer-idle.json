@@ -1,0 +1,26 @@
+{
+  "task_id": "bright-art-design-visual-designer-idle",
+  "status": "completed",
+  "model": "gpt-image-1",
+  "api_key_detected": true,
+  "reference_found": true,
+  "reference_path": "H:\\AIAgentOfficesss\\ai-agent-office\\references\\style-lock\\reference-floor-isometric-sample.png",
+  "reference_width": 436,
+  "reference_height": 123,
+  "reference_format": "PNG",
+  "prompt_source": "docs/BRIGHT_STATE_PROMPTS.md",
+  "source_file": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\source\\bright-art-design-visual-designer-idle-source.png",
+  "final_file": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\themes\\reference-bright\\characters\\art-design\\visual-designer-idle.webp",
+  "final_width": 256,
+  "final_height": 384,
+  "final_format": "WEBP",
+  "transparency_status": "transparent",
+  "visual_lab_url": "http://localhost:3000/bright-office",
+  "visual_lab_screenshot": null,
+  "screenshot_status": "skipped",
+  "errors": [
+    "references_used: 5"
+  ],
+  "started_at": "2026-07-08T04:30:16.607971+00:00",
+  "completed_at": "2026-07-08T04:31:33.730498+00:00"
+}

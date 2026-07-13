@@ -1,0 +1,26 @@
+{
+  "task_id": "asset-dept-pixel-designing",
+  "status": "completed",
+  "model": "gpt-image-1",
+  "api_key_detected": true,
+  "reference_found": true,
+  "reference_path": "H:\\AIAgentOfficesss\\ai-agent-office\\references\\approved-characters\\art-design\\pixel-designer-master.webp",
+  "reference_width": 256,
+  "reference_height": 384,
+  "reference_format": "WEBP",
+  "prompt_source": "docs/DEPARTMENT_CHARACTER_PROMPTS.md",
+  "source_file": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\source\\pixel-designer-designing-source.png",
+  "final_file": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\characters\\composited\\art-design\\pixel-designer-designing.webp",
+  "final_width": 256,
+  "final_height": 384,
+  "final_format": "WEBP",
+  "transparency_status": "transparent",
+  "visual_lab_url": "http://localhost:3000/companies/1",
+  "visual_lab_screenshot": null,
+  "screenshot_status": "skipped",
+  "errors": [
+    "references_used: 3"
+  ],
+  "started_at": "2026-07-06T17:14:51.415612+00:00",
+  "completed_at": "2026-07-06T17:16:09.642276+00:00"
+}

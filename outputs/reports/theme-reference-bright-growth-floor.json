@@ -1,0 +1,26 @@
+{
+  "task_id": "theme-reference-bright-growth-floor",
+  "status": "completed",
+  "model": "gpt-image-1",
+  "api_key_detected": true,
+  "reference_found": true,
+  "reference_path": "H:\\AIAgentOfficesss\\ai-agent-office\\references\\style-lock\\reference-floor-isometric-sample.png",
+  "reference_width": 436,
+  "reference_height": 123,
+  "reference_format": "PNG",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "source_file": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\source\\reference-bright-growth-floor-source.png",
+  "final_file": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\themes\\reference-bright\\floors\\growth-floor.webp",
+  "final_width": 1600,
+  "final_height": 600,
+  "final_format": "WEBP",
+  "transparency_status": "pending_cleanup",
+  "visual_lab_url": "http://localhost:3000/visual-lab/reference-clone",
+  "visual_lab_screenshot": null,
+  "screenshot_status": "skipped",
+  "errors": [
+    "references_used: 3"
+  ],
+  "started_at": "2026-07-06T20:24:28.327992+00:00",
+  "completed_at": "2026-07-06T20:27:06.290095+00:00"
+}

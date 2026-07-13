@@ -1,0 +1,38 @@
+{
+  "slice": "IT / Development",
+  "status": "COMPLETE",
+  "assets_present": 13,
+  "assets_total": 13,
+  "missing": 0,
+  "fallbacks_visible": 0,
+  "floor": "it-dev-floor-base.webp (1600x600, approved)",
+  "characters": {
+    "frontend-developer": { "master_scale": 0.72, "states": ["idle", "reviewing", "coffee", "coding"] },
+    "backend-developer": { "master_scale": 0.74, "states": ["idle", "reading", "monitoring", "debugging"] },
+    "system-analyst": { "master_scale": 0.69, "states": ["idle", "reviewing", "analysing", "relaxing"] }
+  },
+  "generation": {
+    "model": "gpt-image-1",
+    "phase1_api_calls": 9,
+    "revisions": { "backend-developer-monitoring": "1 (removed baked monitor prop)" }
+  },
+  "validation": {
+    "all_states_load": true,
+    "no_broken_paths": true,
+    "no_identity_swap": true,
+    "no_missing_flash_observed": true,
+    "transparency_ok": true,
+    "feet_anchored": true,
+    "differentiation_A_B_C": "strong (hoodie/blue vs jacket+beard+lanyard/teal vs bun+glasses+cardigan/purple)"
+  },
+  "screenshots": [
+    "outputs/screenshots/it-dev-all-idle-final.png",
+    "outputs/screenshots/it-dev-all-working-final.png",
+    "outputs/screenshots/it-dev-mixed-life-final.png",
+    "outputs/screenshots/it-dev-band-5x1-final.png"
+  ],
+  "known_polish_items": [
+    "Per-agent cyan monitor-glow FX is a touch strong; soften in production components (Phase 8).",
+    "Blue accent on Frontend hoodie remains subtle."
+  ]
+}

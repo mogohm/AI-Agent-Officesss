@@ -1,0 +1,37 @@
+{
+  "task_id": "theme-reference-bright-growth-floor-rev",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "growth-floor.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Growth bright floor revision",
+  "prompt_suffix": "Failed criteria being corrected: (1) camera was frontal - the diagonal floor plane and desk tops MUST be visible exactly like image #1; (2) palette was brown/amber-dominated - walls must be light white/cream with daylight, orange only as accents.",
+  "reference_images": [
+    "references/style-lock/reference-floor-isometric-sample.png",
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/office/floors/growth/growth-floor-base.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/floors/growth-floor.webp",
+  "source_output_path": "outputs/source/reference-bright-growth-floor-rev-source.png",
+  "expected_width": 1600,
+  "expected_height": 600,
+  "aspect_ratio": "8:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": false,
+  "visual_lab_url": "http://localhost:3000/visual-lab/reference-clone",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "bright-tower-floor-expansion",
+    "theme": "reference-bright",
+    "department": "Growth",
+    "asset_role": "floor_base",
+    "order": 2,
+    "note": "TARGETED REVISION (the one allowed). v1 rejected: frontal camera + amber-brown dominance. v1 archived at floors/archive/growth-floor-v1-frontal-rejected.webp"
+  },
+  "updated_at": "2026-07-06T20:31:08.954454+00:00",
+  "error_message": null
+}

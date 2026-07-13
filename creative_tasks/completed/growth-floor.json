@@ -1,0 +1,33 @@
+{
+  "task_id": "asset-dept-growth-floor",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "growth-floor-base.webp",
+  "prompt_source": "docs/DEPARTMENT_FLOOR_PROMPTS.md",
+  "prompt_section": "## Growth floor",
+  "prompt_suffix": "Match the EXACT camera angle, pixel density, outline thickness and warm top-left lighting of the provided IT/Dev floor (reference #1). NO people, empty office chairs only. No text, no logos, no watermark. Premium detailed isometric pixel art, room fills the 1600x600 composition.",
+  "reference_images": [
+    "apps/web/public/assets/office/floors/it-dev/it-dev-floor-base.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/office/floors/growth/growth-floor-base.webp",
+  "source_output_path": "outputs/source/growth-floor-source.png",
+  "expected_width": 1600,
+  "expected_height": 600,
+  "aspect_ratio": "8:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": false,
+  "transparency_status": "pending_cleanup",
+  "visual_lab_url": "http://localhost:3000/companies/1",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "department": "Growth",
+    "asset_role": "floor_base"
+  },
+  "updated_at": "2026-07-06T17:35:36.002907+00:00",
+  "error_message": null
+}

@@ -1,0 +1,36 @@
+{
+  "task_id": "asset-dept-pixel-idle",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "pixel-designer-idle.webp",
+  "prompt_source": "docs/DEPARTMENT_CHARACTER_PROMPTS.md",
+  "prompt_section": "## Base character",
+  "prompt_suffix": "IDENTITY (Character: Pixel, UI/Visual Designer \u2014 permanent, distinct from the IT/Dev workers): female-presenting, shoulder-length wavy dark-brown hair with a bright MAGENTA/PINK dyed streak, a slouchy knit beanie, warm medium skin, friendly creative expression; wearing an oversized cream/mustard knit sweater under an open denim jacket with subtle pink/purple pin accents, dark leggings, sneakers; holds a DRAWING TABLET and stylus. Artsy, creative, comfortable, professional. Clearly a DIFFERENT person from the developers and the analyst (not a hoodie dev, not a bearded jacket dev, not a bun+cardigan analyst) \u2014 her hooks are the pink hair streak, beanie, denim jacket and drawing tablet, with a subtle pink/purple accent (NOT blue, NOT teal). POSE: idle \u2014 standing relaxed near her design workstation, the drawing tablet held loosely at her side, an easy friendly expression, natural asymmetry. CAMERA: true 3/4 top-down ISOMETRIC, body turned about 30-45 degrees, slight top-down, feet aligned to the isometric floor direction. STYLE: match the fine pixel density, thin outlines, 3-tone shading and warm top-left lighting of the provided Art & Design floor (reference #1) and the approved worker (reference #2). REFERENCE PRIORITY: #1 the Art & Design floor for pixel density/lighting/world; #2 the approved IT/Dev worker for art style and proportions (NOT identity); #3 the original office image for art direction. Fully transparent background, full body, nothing cropped.",
+  "reference_images": [
+    "apps/web/public/assets/office/floors/art-design/art-design-floor-base.webp",
+    "references/approved-characters/it-dev/frontend-developer-master.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/characters/composited/art-design/pixel-designer-idle.webp",
+  "source_output_path": "outputs/source/pixel-designer-idle-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 1.0,
+  "transparency_requested": true,
+  "transparency_status": "pending",
+  "visual_lab_url": "http://localhost:3000/companies/1",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "dept-expansion",
+    "department": "Art & Design",
+    "character": "Pixel",
+    "state": "idle-master"
+  },
+  "updated_at": "2026-07-06T17:13:17.056192+00:00",
+  "error_message": null
+}

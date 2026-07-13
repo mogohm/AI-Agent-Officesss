@@ -1,0 +1,26 @@
+{
+  "task_id": "asset-p1-analyst-analysing",
+  "status": "completed",
+  "model": "gpt-image-1",
+  "api_key_detected": true,
+  "reference_found": true,
+  "reference_path": "H:\\AIAgentOfficesss\\ai-agent-office\\references\\approved-characters\\it-dev\\system-analyst-master.webp",
+  "reference_width": 256,
+  "reference_height": 384,
+  "reference_format": "WEBP",
+  "prompt_source": "docs/ASSET_BATCH_01.md",
+  "source_file": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\source\\system-analyst-analysing-source.png",
+  "final_file": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\characters\\composited\\it-dev\\system-analyst-analysing.webp",
+  "final_width": 256,
+  "final_height": 384,
+  "final_format": "WEBP",
+  "transparency_status": "transparent",
+  "visual_lab_url": "http://localhost:3000/visual-lab/it-dev-floor",
+  "visual_lab_screenshot": null,
+  "screenshot_status": "skipped",
+  "errors": [
+    "references_used: 3"
+  ],
+  "started_at": "2026-07-06T16:04:09.553063+00:00",
+  "completed_at": "2026-07-06T16:05:24.515255+00:00"
+}

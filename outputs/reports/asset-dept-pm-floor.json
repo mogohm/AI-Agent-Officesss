@@ -1,0 +1,26 @@
+{
+  "task_id": "asset-dept-pm-floor",
+  "status": "completed",
+  "model": "gpt-image-1",
+  "api_key_detected": true,
+  "reference_found": true,
+  "reference_path": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\office\\floors\\it-dev\\it-dev-floor-base.webp",
+  "reference_width": 1600,
+  "reference_height": 600,
+  "reference_format": "WEBP",
+  "prompt_source": "docs/DEPARTMENT_FLOOR_PROMPTS.md",
+  "source_file": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\source\\pm-floor-source.png",
+  "final_file": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\office\\floors\\product-management\\product-management-floor-base.webp",
+  "final_width": 1600,
+  "final_height": 600,
+  "final_format": "WEBP",
+  "transparency_status": "pending_cleanup",
+  "visual_lab_url": "http://localhost:3000/companies/1",
+  "visual_lab_screenshot": null,
+  "screenshot_status": "skipped",
+  "errors": [
+    "references_used: 2"
+  ],
+  "started_at": "2026-07-06T17:38:37.941164+00:00",
+  "completed_at": "2026-07-06T17:40:04.878543+00:00"
+}

@@ -1,0 +1,36 @@
+{
+  "task_id": "asset-batch01-backend-idle",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "backend-developer-idle.webp",
+  "prompt_source": "docs/ASSET_BATCH_01.md",
+  "prompt_section": "## 3. CHARACTER B \u2014 Backend Developer \u2014 exact final prompt",
+  "prompt_suffix": "IDENTITY LOCK (Character B, permanent \u2014 a DIFFERENT person from Character A): male-presenting Backend Developer, short dark-brown UNDERCUT with a slightly longer top (#3A2B22), neat short stubble/beard, warm deeper skin tone (#D99A6C), calm analytical expression, TALLER and BROADER build; a dark technical zip jacket (near-black) over a dark shirt, dark trousers, a visible company LANYARD around the neck, subtle CYAN/TEAL accent (#3BE8E0); calm, technical, methodical. DIFFERENTIATION (must read at small scale): undercut hair, visible short beard/stubble, broader heavier body, technical jacket (NOT a hoodie), visible lanyard, cyan/teal accent (NOT blue). Do NOT reuse Character A's hairstyle, face, hoodie silhouette, slim body, or blue accent \u2014 this is clearly another adult. POSE: relaxed idle at a technical workstation, calm and composed, natural asymmetry \u2014 one arm relaxed, one hand resting near the hip, ready to return to work, not rigid, not posing. CAMERA: true 3/4 top-down ISOMETRIC view, body turned about 30 to 45 degrees from camera, slight top-down so the top plane of shoulders and head is visible, feet aligned to the isometric floor direction \u2014 NOT front-facing, NOT profile, NOT a flat sticker. STYLE: draw in the SAME fine pixel-art density, thin selective outlines, 3-tone shading and soft ambient occlusion as the provided IT/Dev floor (reference #1) \u2014 not chunky coarse pixels, not retro RPG, not anime, not realistic, not vector. LIGHTING: warm key light from the upper-left with an amber highlight, softer darker shading toward the lower-right, a subtle cyan monitor rim light, gentle ambient occlusion \u2014 no flat frontal lighting. A single standalone office-worker sprite sized to sit naturally among the room's desks and chairs. Fully TRANSPARENT background, no room, no floor, no ground or shadow plate, no scenery, no UI, no text, no logo, no watermark, full body with nothing cropped. Reference #1 (IT/Dev floor) drives pixel density, lighting and perspective; reference #2 (AI office image) drives overall art style. It must look painted by the same pixel artist as the floor and physically belong in that room, an adult from the same world as the approved Frontend Developer but clearly a different person.",
+  "reference_images": [
+    "apps/web/public/assets/office/floors/it-dev/it-dev-floor-base.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/characters/composited/it-dev/backend-developer-idle.webp",
+  "source_output_path": "outputs/source/backend-developer-idle-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 1.0,
+  "transparency_requested": true,
+  "transparency_status": "pending",
+  "visual_lab_url": "http://localhost:3000/visual-lab/it-dev-floor",
+  "screenshot_after_generation": true,
+  "metadata": {
+    "batch": "01",
+    "phase": "1B",
+    "department": "IT / Development",
+    "asset_role": "character_idle_master",
+    "character": "B - Backend Developer"
+  },
+  "updated_at": "2026-07-06T14:52:37.133923+00:00",
+  "error_message": null
+}

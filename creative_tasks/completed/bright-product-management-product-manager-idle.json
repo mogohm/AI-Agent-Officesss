@@ -1,0 +1,39 @@
+{
+  "task_id": "bright-product-management-product-manager-idle",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "product-manager-idle.webp",
+  "prompt_source": "docs/BRIGHT_STATE_PROMPTS.md",
+  "prompt_section": "## product-manager idle",
+  "prompt_suffix": "True transparent alpha mandatory. This is a NEW person in the same sprite family as references #4 and #5 - match their pixel density, outline softness, shading and proportions, but do NOT copy their faces or outfits.",
+  "reference_images": [
+    "references/style-lock/reference-floor-isometric-sample.png",
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/themes/reference-bright/floors/product-management-floor.webp",
+    "apps/web/public/assets/themes/reference-bright/characters/engineering/frontend-developer-idle.webp",
+    "apps/web/public/assets/themes/reference-bright/characters/engineering/system-analyst-idle.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/characters/product-management/product-manager-idle.webp",
+  "source_output_path": "outputs/source/bright-product-management-product-manager-idle-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "visual_lab_url": "http://localhost:3000/bright-office",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "bright-office-long-run",
+    "theme": "reference-bright",
+    "department": "product-management",
+    "character": "product-manager",
+    "state": "idle",
+    "asset_role": "character_master"
+  },
+  "updated_at": "2026-07-08T04:22:51.057903+00:00",
+  "error_message": null
+}

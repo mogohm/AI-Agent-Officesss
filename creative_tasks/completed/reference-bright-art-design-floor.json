@@ -1,0 +1,36 @@
+{
+  "task_id": "theme-reference-bright-art-design-floor",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "art-design-floor.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Art & Design bright floor",
+  "prompt_suffix": "The camera is the locked standard: same looking-down-into-the-room perspective as image #1 with the diagonal floor plane and desk top surfaces clearly visible. A frontal straight-on room is a failure.",
+  "reference_images": [
+    "references/style-lock/reference-floor-isometric-sample.png",
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/office/floors/art-design/art-design-floor-base.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/floors/art-design-floor.webp",
+  "source_output_path": "outputs/source/reference-bright-art-design-floor-source.png",
+  "expected_width": 1600,
+  "expected_height": 600,
+  "aspect_ratio": "8:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": false,
+  "visual_lab_url": "http://localhost:3000/visual-lab/reference-clone",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "bright-tower-floor-expansion",
+    "theme": "reference-bright",
+    "department": "Art & Design",
+    "asset_role": "floor_base",
+    "order": 3
+  },
+  "updated_at": "2026-07-06T20:33:39.733481+00:00",
+  "error_message": null
+}

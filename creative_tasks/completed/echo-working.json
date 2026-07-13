@@ -1,0 +1,34 @@
+{
+  "task_id": "asset-dept-echo-working",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "echo-marketer-working.webp",
+  "prompt_source": "docs/DEPARTMENT_CHARACTER_PROMPTS.md",
+  "prompt_section": "## Base character",
+  "prompt_suffix": "IDENTITY \u2014 the SAME approved person as reference #1 (Echo master); preserve exactly, only the POSE changes: female-presenting marketer, sleek dark bob, orange/rust blazer over cream tee, tailored trousers, loafers, a tablet with charts. STATE = WORKING (analysing): standing turned 3/4, holding the TABLET up in one hand and gesturing at its charts with the other, a confident presenting/analysing expression, slight lean forward. CAMERA: true 3/4 top-down ISOMETRIC, feet aligned to the isometric floor. STYLE: match the master and Growth floor density, outlines, shading and warm top-left lighting. REFERENCE PRIORITY: #1 Echo master identity (preserve exactly); #2 Growth floor; #3 original image. Fully transparent background, full body, nothing cropped, no room/floor/furniture/text/logo.",
+  "reference_images": [
+    "references/approved-characters/growth/echo-marketer-master.webp",
+    "apps/web/public/assets/office/floors/growth/growth-floor-base.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/characters/composited/growth/echo-marketer-working.webp",
+  "source_output_path": "outputs/source/echo-working-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 1.0,
+  "transparency_requested": true,
+  "transparency_status": "pending",
+  "visual_lab_url": "http://localhost:3000/companies/1",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "character": "Echo",
+    "state": "working"
+  },
+  "updated_at": "2026-07-06T17:38:16.630583+00:00",
+  "error_message": null
+}

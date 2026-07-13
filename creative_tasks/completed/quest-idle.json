@@ -1,0 +1,34 @@
+{
+  "task_id": "asset-dept-quest-idle",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "quest-gamedesigner-idle.webp",
+  "prompt_source": "docs/DEPARTMENT_CHARACTER_PROMPTS.md",
+  "prompt_section": "## Base character",
+  "prompt_suffix": "IDENTITY (Character: Quest, Game Designer \u2014 permanent, distinct from all other workers): male-presenting, tousled spiky dark hair with bright ELECTRIC-BLUE tips, warm light-medium skin, friendly playful expression; wearing a plain graphic tee (no readable text) under an open teal/amber bomber jacket, casual jeans, sneakers; holds a GAME CONTROLLER. Playful, creative, energetic. Distinct hooks: spiky blue-tipped hair, bomber jacket (not a hoodie), a game controller, teal/amber accent. POSE: idle \u2014 standing relaxed, controller held loosely in one hand, easy grin, natural asymmetry. CAMERA: true 3/4 top-down ISOMETRIC, feet aligned to the isometric floor. STYLE: match the fine pixel density, outlines, 3-tone shading and warm top-left lighting of the Game Studio floor (reference #1) and the approved worker (reference #2). REFERENCE PRIORITY: #1 Game Studio floor for density/lighting/world; #2 approved IT/Dev worker for art style and proportions (NOT identity); #3 original office image. Fully transparent background, full body, nothing cropped, no room/floor/furniture/text/logo.",
+  "reference_images": [
+    "apps/web/public/assets/office/floors/game-studio/game-studio-floor-base.webp",
+    "references/approved-characters/it-dev/frontend-developer-master.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/characters/composited/game-studio/quest-gamedesigner-idle.webp",
+  "source_output_path": "outputs/source/quest-idle-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 1.0,
+  "transparency_requested": true,
+  "transparency_status": "pending",
+  "visual_lab_url": "http://localhost:3000/companies/1",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "character": "Quest",
+    "state": "idle-master"
+  },
+  "updated_at": "2026-07-06T17:24:20.501644+00:00",
+  "error_message": null
+}

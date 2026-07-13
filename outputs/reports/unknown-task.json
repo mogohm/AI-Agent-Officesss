@@ -1,0 +1,26 @@
+{
+  "task_id": null,
+  "status": "failed",
+  "model": null,
+  "api_key_detected": true,
+  "reference_found": false,
+  "reference_path": null,
+  "reference_width": null,
+  "reference_height": null,
+  "reference_format": null,
+  "prompt_source": null,
+  "source_file": null,
+  "final_file": null,
+  "final_width": null,
+  "final_height": null,
+  "final_format": null,
+  "transparency_status": null,
+  "visual_lab_url": null,
+  "visual_lab_screenshot": null,
+  "screenshot_status": null,
+  "errors": [
+    "Task file not found: creative_tasks/pending/it-dev-floor-base.json"
+  ],
+  "started_at": "2026-07-06T07:23:16.862185+00:00",
+  "completed_at": "2026-07-06T07:23:16.975010+00:00"
+}

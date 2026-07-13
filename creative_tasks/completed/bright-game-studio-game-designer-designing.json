@@ -1,0 +1,37 @@
+{
+  "task_id": "bright-game-studio-game-designer-designing",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "game-designer-designing.webp",
+  "prompt_source": "docs/BRIGHT_STATE_PROMPTS.md",
+  "prompt_section": "## game-designer designing",
+  "prompt_suffix": "True transparent alpha mandatory. Image #1 is THE SAME PERSON - preserve face, hair, outfit, colors and proportions exactly; only the pose and small hand-held prop change.",
+  "reference_images": [
+    "apps/web/public/assets/themes/reference-bright/characters/game-studio/game-designer-idle.webp",
+    "apps/web/public/assets/themes/reference-bright/floors/game-studio-floor.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/characters/game-studio/game-designer-designing.webp",
+  "source_output_path": "outputs/source/bright-game-studio-game-designer-designing-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "visual_lab_url": "http://localhost:3000/bright-office",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "bright-office-long-run",
+    "theme": "reference-bright",
+    "department": "game-studio",
+    "character": "game-designer",
+    "state": "designing",
+    "asset_role": "character_state"
+  },
+  "updated_at": "2026-07-08T06:03:17.549400+00:00",
+  "error_message": null
+}

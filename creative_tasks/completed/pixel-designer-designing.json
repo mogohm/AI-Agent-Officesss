@@ -1,0 +1,35 @@
+{
+  "task_id": "asset-dept-pixel-designing",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "pixel-designer-designing.webp",
+  "prompt_source": "docs/DEPARTMENT_CHARACTER_PROMPTS.md",
+  "prompt_section": "## Base character",
+  "prompt_suffix": "IDENTITY \u2014 the SAME approved person as reference #1 (Pixel master); preserve exactly, only the POSE changes: female-presenting designer, shoulder-length wavy dark-brown hair with a MAGENTA/PINK streak, slouchy knit beanie, warm medium skin, oversized cream/mustard sweater under an open denim jacket with pink/purple pin accents, dark leggings, sneakers. STATE = DESIGNING: standing turned 3/4, holding a drawing TABLET up in one hand and actively drawing on it with a STYLUS in the other, focused creative expression, slight lean toward the work. CAMERA: true 3/4 top-down ISOMETRIC, feet aligned to the isometric floor. STYLE: match the fine pixel density, thin outlines, 3-tone shading and warm top-left lighting of the master and the Art & Design floor. REFERENCE PRIORITY: #1 Pixel master controls identity (preserve exactly); #2 Art & Design floor for density/lighting; #3 original office image for art direction. Fully transparent background, full body, nothing cropped, no room/floor/furniture/text/logo.",
+  "reference_images": [
+    "references/approved-characters/art-design/pixel-designer-master.webp",
+    "apps/web/public/assets/office/floors/art-design/art-design-floor-base.webp",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/characters/composited/art-design/pixel-designer-designing.webp",
+  "source_output_path": "outputs/source/pixel-designer-designing-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 1.0,
+  "transparency_requested": true,
+  "transparency_status": "pending",
+  "visual_lab_url": "http://localhost:3000/companies/1",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "dept-expansion",
+    "character": "Pixel",
+    "state": "designing"
+  },
+  "updated_at": "2026-07-06T17:16:09.642276+00:00",
+  "error_message": null
+}

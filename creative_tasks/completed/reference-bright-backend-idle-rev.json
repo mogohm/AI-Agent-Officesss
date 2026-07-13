@@ -1,0 +1,40 @@
+{
+  "task_id": "theme-reference-bright-backend-idle-rev",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "backend-developer-idle.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Bright Backend Developer idle revision",
+  "prompt_suffix": "Failed criteria being corrected: (1) outfit read as a near-black mass at tower scale - jacket must be medium slate-teal with daylight highlights and a bright gray tee; (2) teal accent was invisible at small size - teal lanyard, collar and cuffs must stay readable at 60px. True transparent alpha mandatory.",
+  "reference_images": [
+    "references/style-lock/reference-floor-isometric-sample.png",
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/themes/reference-bright/floors/engineering-floor.webp",
+    "apps/web/public/assets/themes/reference-bright/characters/engineering/frontend-developer-idle.webp",
+    "apps/web/public/assets/characters/composited/it-dev/backend-developer-idle.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/characters/engineering/backend-developer-idle.webp",
+  "source_output_path": "outputs/source/reference-bright-backend-idle-rev-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "visual_lab_url": "http://localhost:3000/visual-lab/reference-clone",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "bright-engineering-character-trio",
+    "theme": "reference-bright",
+    "department": "Engineering",
+    "character": "backend-developer",
+    "state": "idle",
+    "asset_role": "character_master",
+    "note": "TARGETED REVISION (the one allowed). v1 rejected: near-black outfit + invisible teal at tower scale. v1 archived."
+  },
+  "updated_at": "2026-07-08T03:26:06.299472+00:00",
+  "error_message": null
+}

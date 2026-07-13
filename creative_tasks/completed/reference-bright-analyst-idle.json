@@ -1,0 +1,40 @@
+{
+  "task_id": "theme-reference-bright-analyst-idle",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "system-analyst-idle.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Bright System Analyst idle",
+  "prompt_suffix": "True transparent alpha background is mandatory - a single standalone character sprite with nothing behind her. She must read as a DIFFERENT person from reference #4 while staying in the same sprite family, slightly shorter and slimmer than him.",
+  "reference_images": [
+    "references/style-lock/reference-floor-isometric-sample.png",
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/themes/reference-bright/floors/engineering-floor.webp",
+    "apps/web/public/assets/themes/reference-bright/characters/engineering/frontend-developer-idle.webp",
+    "apps/web/public/assets/characters/composited/it-dev/system-analyst-idle.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/characters/engineering/system-analyst-idle.webp",
+  "source_output_path": "outputs/source/reference-bright-analyst-idle-source.png",
+  "expected_width": 256,
+  "expected_height": 384,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "visual_lab_url": "http://localhost:3000/visual-lab/reference-clone",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "bright-engineering-character-trio",
+    "theme": "reference-bright",
+    "department": "Engineering",
+    "character": "system-analyst",
+    "state": "idle",
+    "asset_role": "character_master",
+    "note": "Third family member. Frontend master = family anchor. Dark analyst master = identity semantics only."
+  },
+  "updated_at": "2026-07-08T03:29:11.256937+00:00",
+  "error_message": null
+}

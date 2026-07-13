@@ -1,0 +1,35 @@
+{
+  "task_id": "theme-reference-bright-engineering-floor",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "engineering-floor.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Engineering bright floor",
+  "prompt_suffix": "Match the bright daytime palette, cuteness and pixel density of reference #1 exactly. Use reference #2 ONLY for what furniture an engineering floor contains - do NOT copy its dark night colors or lighting.",
+  "reference_images": [
+    "references/ai-agent-office-reference.png",
+    "apps/web/public/assets/office/floors/it-dev/it-dev-floor-base.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/floors/engineering-floor.webp",
+  "source_output_path": "outputs/source/reference-bright-engineering-floor-source.png",
+  "expected_width": 1600,
+  "expected_height": 600,
+  "aspect_ratio": "8:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": false,
+  "visual_lab_url": "http://localhost:3000/visual-lab/reference-clone",
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "reference-clone-rebuild",
+    "theme": "reference-bright",
+    "department": "Engineering",
+    "asset_role": "floor_base",
+    "note": "FIRST bright test floor. Gate: must match reference style before generating the other five."
+  },
+  "updated_at": "2026-07-06T19:42:44.374627+00:00",
+  "error_message": null
+}

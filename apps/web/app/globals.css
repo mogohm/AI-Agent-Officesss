@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  color: #18335a;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Bright sky-blue page with soft light washes */
+body {
+  background:
+    radial-gradient(1100px 640px at 82% -12%, rgba(47, 102, 179, 0.10), transparent),
+    radial-gradient(900px 560px at -5% 110%, rgba(122, 90, 209, 0.08), transparent),
+    linear-gradient(180deg, #eef5ff 0%, #e6f0fe 60%, #eaf3ff 100%);
+  min-height: 100vh;
+}
+
+.pixelated { image-rendering: pixelated; }
+.font-pixel { letter-spacing: 0.02em; }
+.neon-text { text-shadow: none; }
+
+/* Light sky strip for building rooftops / card headers */
+.skyline {
+  background: linear-gradient(180deg, #cfe2fb 0%, #eaf3ff 100%);
+}
+
+/* Window-grid used inside floor fallbacks (kept subtle, on dark art) */
+.window-grid {
+  background-image:
+    linear-gradient(rgba(255, 207, 122, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 207, 122, 0.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(3px);
+}
+
+.iso-tilt { transform: perspective(900px) rotateX(3deg); }
+
+/* Thin light scrollbars */
+.scroll-slim::-webkit-scrollbar { width: 9px; height: 9px; }
+.scroll-slim::-webkit-scrollbar-thumb { background: #c7d6ea; border-radius: 999px; }
+.scroll-slim::-webkit-scrollbar-track { background: transparent; }
+
+/* Soft card shell */
+.panel {
+  box-shadow: 0 6px 20px rgba(24, 51, 90, 0.10);
+}
