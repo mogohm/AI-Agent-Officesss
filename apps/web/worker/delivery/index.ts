@@ -6,7 +6,10 @@ import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { claimNext, markRunning, completeJob, failJob, renewLease, enqueue, jobKeys } from "@/lib/delivery/queue";
 import { orchestrate, transitionMission } from "@/lib/delivery/orchestrator";
-import { prepareBaseWorkspace } from "@/lib/delivery/workspace";
+import { prepareBaseWorkspace, layout } from "@/lib/delivery/workspace";
+import { runCommand } from "@/lib/delivery/command-runner";
+import { runAssetStandardization, BlockedAssetGeneration, BlockedBudget } from "@/lib/delivery/agents/asset-standardize";
+import { runAssetReview } from "@/lib/delivery/agents/asset-review";
 import { runAssetAudit } from "@/lib/delivery/agents/asset-audit";
 import { MissingCredentialsError } from "@/lib/delivery/providers";
 import { emit } from "@/lib/delivery/events";
@@ -86,8 +89,12 @@ async function handleAgentExecution(payload: {
   const mission = await db.mission.findUniqueOrThrow({ where: { id: missionId }, select: { repositoryUrl: true, baseBranch: true } });
   await prepareBaseWorkspace({ missionId, missionKey, repositoryUrl: mission.repositoryUrl, baseBranch: mission.baseBranch });
 
+  if (role === "ASSET") {
+    await handleAssetStandardization({ missionId, missionKey, workPackageId, workPackageKey, agentRunId });
+    return;
+  }
   if (role !== "UX_VISUAL") {
-    throw new Error(`no executor implemented for role ${role} in this slice (read-only asset audit only)`);
+    throw new Error(`no executor implemented for role ${role} in this slice`);
   }
 
   const { artifactPaths, audit, usage } = await runAssetAudit({ missionId, missionKey, workPackageId, workPackageKey, agentRunId });
@@ -130,6 +137,128 @@ async function handleAgentExecution(payload: {
   logger.info("work package passed", { action: "delivery.wp_passed", wp: workPackageKey, assets: audit.summary.total });
 }
 
+/**
+ * ASSET work package: generate → INDEPENDENT review (separate AgentRun) →
+ * commit in the isolated worktree → PASSED. The generator can never approve
+ * its own output (§14).
+ */
+async function handleAssetStandardization(o: {
+  missionId: string; missionKey: string; workPackageId: string; workPackageKey: string; agentRunId: string;
+}) {
+  const { missionId, missionKey, workPackageId, workPackageKey, agentRunId } = o;
+
+  const gen = await runAssetStandardization({ missionId, missionKey, workPackageId, workPackageKey, agentRunId });
+
+  await db.agentRun.update({
+    where: { id: agentRunId },
+    data: {
+      status: "SUCCEEDED", completedAt: new Date(), costUsd: gen.cost,
+      outputSummary: `generated ${gen.manifest.length} assets (plan ${gen.plan.assets.length}) $${gen.cost.toFixed(4)}`,
+    },
+  });
+  await db.workPackage.update({ where: { id: workPackageId }, data: { status: "IN_REVIEW" } });
+  await emit(missionId, "work_package.updated", { wp: workPackageKey, status: "IN_REVIEW" });
+
+  // ---- independent review run ----
+  const reviewRun = await db.agentRun.create({
+    data: { missionId, workPackageId, role: "CODE_REVIEW", status: "RUNNING", startedAt: new Date(), inputSummary: `independent review of ${gen.manifest.length} generated assets` },
+  });
+  await emit(missionId, "agent.started", { wp: workPackageKey, role: "ASSET_REVIEW", agentRunId: reviewRun.id });
+
+  const review = await runAssetReview({
+    missionId, missionKey, workPackageId, workPackageKey,
+    reviewerAgentRunId: reviewRun.id, generatorAgentRunId: agentRunId,
+    worktreePath: gen.worktreePath, manifest: gen.manifest,
+  });
+
+  await db.agentRun.update({
+    where: { id: reviewRun.id },
+    data: {
+      status: "SUCCEEDED", completedAt: new Date(),
+      promptTokens: review.usage.prompt, completionTokens: review.usage.completion,
+      totalTokens: review.usage.prompt + review.usage.completion, costUsd: review.usage.cost,
+      outputSummary: `review ${review.report.verdict}: ${review.report.summary.approved} approved, ${review.report.summary.changesRequested} changes, ${review.report.summary.blocked} blocked`,
+    },
+  });
+
+  const totalCost = gen.cost + review.usage.cost;
+  await db.$transaction(async (tx) => {
+    await tx.agentUsageRecord.create({
+      data: {
+        missionId, agentRunId: reviewRun.id, role: "ASSET", provider: "OPENAI",
+        model: process.env.DELIVERY_IMAGE_MODEL ?? "gpt-image-1-mini",
+        promptTokens: review.usage.prompt, completionTokens: review.usage.completion,
+        totalTokens: review.usage.prompt + review.usage.completion, costUsd: totalCost,
+      },
+    });
+    await tx.missionBudget.updateMany({ where: { missionId }, data: { spentCostUsd: { increment: totalCost } } });
+    await tx.workPackage.update({ where: { id: workPackageId }, data: { costUsd: totalCost } });
+  });
+
+  if (review.report.verdict !== "APPROVED") {
+    await db.workPackage.update({ where: { id: workPackageId }, data: { status: "CHANGES_REQUESTED" } });
+    for (const a of review.report.assets.filter((x) => x.verdict !== "APPROVED")) {
+      const key = `DEF-${workPackageKey}-${path.basename(a.targetPath)}`.slice(0, 60);
+      await db.defect.upsert({
+        where: { missionId_key: { missionId, key } },
+        update: { status: "OPEN", description: a.findings.join("; ") || "review requested changes" },
+        create: {
+          missionId, workPackageId, key, title: `Asset review: ${path.basename(a.targetPath)}`,
+          description: a.findings.join("; ") || "review requested changes",
+          severity: a.verdict === "BLOCKED" ? "P1" : "P2", category: "visual",
+          suspectedFiles: [a.targetPath], assignedRole: "ASSET",
+        },
+      });
+    }
+    await emit(missionId, "work_package.updated", { wp: workPackageKey, status: "CHANGES_REQUESTED", verdict: review.report.verdict });
+    throw new Error(`asset review returned ${review.report.verdict} — ${review.report.summary.changesRequested} changes requested, ${review.report.summary.blocked} blocked`);
+  }
+
+  // ---- commit inside the isolated worktree (§16) ----
+  await db.workPackage.update({ where: { id: workPackageId }, data: { status: "TESTING" } });
+  const wsRoot = layout(missionKey).root;
+  const status = await runCommand({ executable: "git", args: ["status", "--porcelain"], cwd: gen.worktreePath, workspaceRoot: wsRoot, missionId, agentRunId: reviewRun.id, toolName: "git.status" });
+  const changed = status.stdout.split("\n").filter(Boolean);
+  const unexpected = changed.filter((l) => !/public\/assets\/office\//.test(l));
+  if (unexpected.length > 0) {
+    throw new Error(`unexpected repository changes outside the asset directories: ${unexpected.slice(0, 5).join(" | ")}`);
+  }
+
+  let commitSha: string | null = null;
+  if (changed.length > 0) {
+    await runCommand({ executable: "git", args: ["add", "apps/web/public/assets/office"], cwd: gen.worktreePath, workspaceRoot: wsRoot, missionId, agentRunId: reviewRun.id, toolName: "git.add" });
+    await runCommand({ executable: "git", args: ["config", "user.email", "delivery@ai-agent-office.local"], cwd: gen.worktreePath, workspaceRoot: wsRoot, missionId, toolName: "git.config" });
+    await runCommand({ executable: "git", args: ["config", "user.name", "Autonomous Delivery Center"], cwd: gen.worktreePath, workspaceRoot: wsRoot, missionId, toolName: "git.config" });
+    await runCommand({ executable: "git", args: ["commit", "-m", `assets(${workPackageKey}): standardized ${gen.manifest.length} assets to style lock`], cwd: gen.worktreePath, workspaceRoot: wsRoot, missionId, agentRunId: reviewRun.id, toolName: "git.commit" });
+    const sha = await runCommand({ executable: "git", args: ["rev-parse", "HEAD"], cwd: gen.worktreePath, workspaceRoot: wsRoot, missionId, toolName: "git.sha" });
+    commitSha = sha.ok ? sha.stdout.trim() : null;
+    if (commitSha) {
+      await db.gitCommitRecord.create({
+        data: {
+          missionId, workPackageId, sha: commitSha, branch: `work/${missionKey}/${workPackageKey}`,
+          message: `assets(${workPackageKey}): standardized ${gen.manifest.length} assets`,
+          authorName: "Autonomous Delivery Center", filesChanged: changed.length, pushed: false,
+        },
+      });
+    }
+  }
+
+  await db.$transaction(async (tx) => {
+    await tx.workPackage.update({ where: { id: workPackageId }, data: { status: "PASSED", completedAt: new Date() } });
+    await tx.requirementTrace.updateMany({ where: { workPackageId }, data: { satisfied: true, note: `assets standardized; commit ${commitSha?.slice(0, 8) ?? "n/a"}` } });
+    await tx.missionAuditLog.create({
+      data: {
+        missionId, action: "work_package.passed", entityType: "workPackage", entityId: workPackageId,
+        fromState: "TESTING", toState: "PASSED", reason: "assets generated, independently reviewed and committed",
+        evidence: { assets: gen.manifest.length, cost: totalCost, commit: commitSha, review: review.report.verdict, artifacts: [...gen.artifactPaths, ...review.artifactPaths] },
+      },
+    });
+  });
+  await emit(missionId, "agent.completed", { wp: workPackageKey, assets: gen.manifest.length, cost: totalCost, commit: commitSha });
+  await emit(missionId, "work_package.updated", { wp: workPackageKey, status: "PASSED" });
+  logger.info("asset work package passed", { action: "delivery.wp_passed", wp: workPackageKey, assets: gen.manifest.length, cost: totalCost });
+}
+
 async function processJob(job: Awaited<ReturnType<typeof claimNext>>) {
   if (!job) return;
   activeJobs++;
@@ -152,8 +281,19 @@ async function processJob(job: Awaited<ReturnType<typeof claimNext>>) {
     if (job.workPackageId) {
       await db.workPackage.update({ where: { id: job.workPackageId }, data: { status: "FAILED" } }).catch(() => {});
     }
+    const assetBlocked = err instanceof BlockedAssetGeneration;
+    const budgetBlocked = err instanceof BlockedBudget;
     if (job.missionId) {
-      await emit(job.missionId, "agent.failed", { error: msg.slice(0, 300), credentials });
+      await emit(job.missionId, "agent.failed", { error: msg.slice(0, 300), credentials, assetBlocked, budgetBlocked });
+      if (assetBlocked || budgetBlocked) {
+        await completeJob(job.id, "DEAD", msg);
+        await transitionMission({
+          missionId: job.missionId, to: "BLOCKED", reason: msg,
+          blockedReason: budgetBlocked ? "BUDGET_EXCEEDED" : "MAX_ATTEMPTS",
+          blockedDetail: (budgetBlocked ? "BLOCKED_BUDGET: " : "BLOCKED_ASSET_GENERATION: ") + msg.slice(0, 500),
+        }).catch(() => {});
+        return;
+      }
       if (credentials) {
         // BLOCKED_CREDENTIALS is terminal for this turn — never retried blindly
         await completeJob(job.id, "DEAD", msg);

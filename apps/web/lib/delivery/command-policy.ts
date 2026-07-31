@@ -12,8 +12,15 @@ export type PolicyVerdict = { allowed: true } | { allowed: false; reason: string
 
 /** Read-only executables permitted in this round. */
 const ALLOWED_EXECUTABLES = new Set([
-  "pwd", "ls", "cat", "file", "find", "git", "node", "npm", "npx", "identify",
+  "pwd", "ls", "cat", "file", "find", "git", "node", "npm", "npx", "identify", "python", "python3",
 ]);
+
+/**
+ * Interpreters may only run scripts from these repo-tracked directories. This
+ * stops an agent from writing a script into the artifact area and executing it
+ * (privilege escalation via the interpreter).
+ */
+const ALLOWED_SCRIPT_DIRS = ["tools/", "apps/web/scripts/"];
 
 /** git subcommands that cannot mutate the repository or remote. */
 const ALLOWED_GIT_SUBCOMMANDS = new Set([
@@ -100,6 +107,24 @@ export function validateCommand(input: {
       if (!["add", "list", "remove"].includes(action ?? "")) {
         return { allowed: false, reason: `git worktree ${action ?? "?"} is not permitted` };
       }
+    }
+  }
+
+  if (base === "python" || base === "python3" || base === "node") {
+    const script = input.args[0];
+    if (!script || script.startsWith("-")) {
+      return { allowed: false, reason: `${base} requires an approved script path as the first argument` };
+    }
+    const normalised = script.replace(/\\/g, "/");
+    // the script must live in a repo-tracked tools/scripts directory…
+    const rel = path.isAbsolute(normalised)
+      ? path.relative(path.resolve(input.workspaceRoot), path.resolve(normalised)).replace(/\\/g, "/")
+      : normalised;
+    if (!ALLOWED_SCRIPT_DIRS.some((d) => rel.includes(d))) {
+      return { allowed: false, reason: `${base} may only run scripts under ${ALLOWED_SCRIPT_DIRS.join(" or ")} (got ${rel.slice(0, 60)})` };
+    }
+    if (!/\.(py|mjs|cjs|js)$/.test(rel)) {
+      return { allowed: false, reason: "interpreter script must be a .py/.js/.mjs/.cjs file" };
     }
   }
 

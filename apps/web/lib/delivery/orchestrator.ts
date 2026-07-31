@@ -47,7 +47,16 @@ export async function transitionMission(opts: {
  * has nothing to do with the work itself. Packages for unimplemented roles stay
  * eligible and are reported as awaiting an executor.
  */
-export const EXECUTABLE_ROLES = new Set(["UX_VISUAL"]);
+export const EXECUTABLE_ROLES = new Set(["UX_VISUAL", "ASSET"]);
+
+/**
+ * Controlled vertical-slice policy (§3): only these work packages may be
+ * dispatched this round. FRONTEND_DEV/BACKEND_DEV remain awaitingExecutor.
+ * An empty set means "no restriction".
+ */
+export const ALLOWED_WORK_PACKAGE_CODES = new Set(
+  (process.env.DELIVERY_ALLOWED_WP ?? "WP-001,WP-002").split(",").map((s) => s.trim()).filter(Boolean),
+);
 
 export type OrchestrateResult = {
   scheduled: string[];
@@ -103,9 +112,13 @@ export async function orchestrate(missionId: string): Promise<OrchestrateResult>
   });
 
   // split eligible work by whether an executor exists for the role
-  const runnable = eligible.filter((e) => EXECUTABLE_ROLES.has(mission.workPackages.find((w) => w.id === e.id)!.role));
+  const inPolicy = (id: string) => {
+    const wp = mission.workPackages.find((w) => w.id === id)!;
+    return ALLOWED_WORK_PACKAGE_CODES.size === 0 || ALLOWED_WORK_PACKAGE_CODES.has(wp.key);
+  };
+  const runnable = eligible.filter((e) => EXECUTABLE_ROLES.has(mission.workPackages.find((w) => w.id === e.id)!.role) && inPolicy(e.id));
   const awaitingExecutor = eligible
-    .filter((e) => !EXECUTABLE_ROLES.has(mission.workPackages.find((w) => w.id === e.id)!.role))
+    .filter((e) => !EXECUTABLE_ROLES.has(mission.workPackages.find((w) => w.id === e.id)!.role) || !inPolicy(e.id))
     .map((e) => mission.workPackages.find((w) => w.id === e.id)!.key);
 
   if (runnable.length === 0) {
