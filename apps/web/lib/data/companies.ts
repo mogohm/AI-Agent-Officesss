@@ -2,12 +2,14 @@ import "server-only";
 import { db } from "@/lib/db";
 import { requireUser, isSuperAdmin } from "@/lib/auth-helpers";
 import { requireCompanyAccess } from "@/lib/rbac";
+import { testDataFilter } from "@/lib/test-data";
 
 /** Companies the current user may see (active only), for selectors/lists. */
-export async function listAccessibleCompanies(opts?: { includeArchived?: boolean }) {
+export async function listAccessibleCompanies(opts?: { includeArchived?: boolean; showTestData?: boolean }) {
   const user = await requireUser();
   const base = isSuperAdmin(user) ? {} : { members: { some: { userId: user.id } } };
-  const where = opts?.includeArchived ? base : { ...base, archivedAt: null };
+  const notTest = testDataFilter(opts?.showTestData);
+  const where = opts?.includeArchived ? { ...base, ...notTest } : { ...base, ...notTest, archivedAt: null };
   return db.company.findMany({
     where,
     orderBy: [{ status: "asc" }, { name: "asc" }],

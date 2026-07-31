@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { accessibleCompanyIds } from "@/lib/rbac";
+import { testDataFilter } from "@/lib/test-data";
 
 export function startOfMonth(d = new Date()): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
@@ -20,10 +21,12 @@ export type DashboardMetrics = {
   monthCost: number;
 };
 
-export async function getDashboardMetrics(): Promise<DashboardMetrics> {
+export async function getDashboardMetrics(showTestData = false): Promise<DashboardMetrics> {
   const ids = await accessibleCompanyIds();
-  const companyWhere = ids === "all" ? {} : { id: { in: ids } };
-  const scope = ids === "all" ? {} : { companyId: { in: ids } };
+  const notTest = testDataFilter(showTestData);
+  const companyWhere = ids === "all" ? { ...notTest } : { id: { in: ids }, ...notTest };
+  // scope child records to non-test companies too, so metrics match the cards
+  const scope = ids === "all" ? { company: notTest } : { companyId: { in: ids }, company: notTest };
 
   const [companies, departments, workers, onlineWorkers, activeTasks, waitingApprovals, failedTasks, usage] =
     await Promise.all([
@@ -49,9 +52,10 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   };
 }
 
-export async function getCompanyOverview() {
+export async function getCompanyOverview(showTestData = false) {
   const ids = await accessibleCompanyIds();
-  const where = ids === "all" ? { archivedAt: null } : { archivedAt: null, id: { in: ids } };
+  const notTest = testDataFilter(showTestData);
+  const where = ids === "all" ? { archivedAt: null, ...notTest } : { archivedAt: null, id: { in: ids }, ...notTest };
   const companies = await db.company.findMany({
     where,
     orderBy: { name: "asc" },

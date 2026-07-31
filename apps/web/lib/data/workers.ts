@@ -14,7 +14,18 @@ export async function listWorkers(filter?: { companyId?: string }) {
   return db.aIWorker.findMany({
     where,
     orderBy: { name: "asc" },
-    include: { company: { select: { name: true, currency: true } }, department: { select: { name: true } } },
+    include: {
+      company: { select: { name: true, currency: true } },
+      department: { select: { name: true } },
+      providerConnection: { select: { providerType: true, displayName: true } },
+      // most recent active task (for the "current task" line on worker cards)
+      tasks: {
+        where: { status: { in: ["QUEUED", "RUNNING", "WAITING_APPROVAL"] } },
+        orderBy: { updatedAt: "desc" },
+        take: 1,
+        select: { id: true, title: true, status: true },
+      },
+    },
   });
 }
 

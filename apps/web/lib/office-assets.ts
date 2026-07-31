@@ -3,6 +3,17 @@
 // module → generic module → CSS room; sprite → default sprite → initials.
 
 const MODULES = "/assets/themes/reference-bright/tower-master/modules";
+// Wide "band" rooms: furniture + props only, NO baked-in people (required so the
+// only visible workers are real DB records). Used for tower floor interiors.
+const BANDS = "/assets/office/floors";
+const BAND_BY_KEY: Record<string, string> = {
+  "it-dev": `${BANDS}/it-dev/it-dev-floor-band.webp`,
+  design: `${BANDS}/art-design/art-design-floor-band.webp`,
+  marketing: `${BANDS}/growth/growth-floor-band.webp`,
+  sales: `${BANDS}/product-management/product-management-floor-band.webp`,
+  hr: `${BANDS}/quality/quality-floor-band.webp`,
+  lobby: `${BANDS}/game-studio/game-studio-floor-band.webp`,
+};
 const SPRITES = "/assets/characters/composited";
 const BUILDINGS = "/assets/themes/reference-bright/companies";
 
@@ -29,10 +40,20 @@ const NAME_KEYWORDS: [RegExp, string][] = [
   [/lobby|support|ต้อนรับ|ซัพพอร์ต|reception/i, "lobby"],
 ];
 
+function floorKey(floorType: string, name = ""): string {
+  for (const [re, key] of NAME_KEYWORDS) if (re.test(name)) return key;
+  return FLOOR_BY_TYPE[floorType] ?? "lobby";
+}
+
+/** Full isometric room (has people baked in) — used on the department page. */
 export function floorModule(floorType: string, name = ""): string {
-  for (const [re, key] of NAME_KEYWORDS) if (re.test(name)) return `${MODULES}/${key}-floor-module-ref.webp`;
-  const key = FLOOR_BY_TYPE[floorType] ?? "lobby";
-  return `${MODULES}/${key}-floor-module-ref.webp`;
+  return `${MODULES}/${floorKey(floorType, name)}-floor-module-ref.webp`;
+}
+
+/** Wide people-free room band — used for tower floor interiors. */
+export function floorBand(floorType: string, name = ""): string {
+  const key = floorKey(floorType, name);
+  return BAND_BY_KEY[key] ?? BAND_BY_KEY["it-dev"];
 }
 
 // ---- worker sprites (chibi pixel-art) ----

@@ -20,7 +20,10 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
-    "verify": "npm run lint && npm run typecheck && npm run test:unit && npm run build"
+    "verify": "npm run lint && npm run typecheck && npm run test:unit && npm run build",
+    "test:delivery": "vitest run tests/unit/delivery.test.ts",
+    "delivery:check": "prisma validate && prisma migrate status",
+    "verify:delivery": "npm run lint && npm run typecheck && npm run test:unit && npm run test:delivery && npm run delivery:check && npm run build"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

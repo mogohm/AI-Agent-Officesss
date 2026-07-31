@@ -5,14 +5,16 @@ import { MetricCard } from "@/components/dashboard/MetricCard";
 import { PageHeader, EmptyState, ErrorState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { CompanyBuildingCard } from "@/components/companies/CompanyBuildingCard";
+import { showTestDataFrom, canToggleTestData } from "@/lib/test-data";
 import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: { showTestData?: string } }) {
+  const showTest = showTestDataFrom(searchParams);
   let metrics, companies;
   try {
-    [metrics, companies] = await Promise.all([getDashboardMetrics(), getCompanyOverview()]);
+    [metrics, companies] = await Promise.all([getDashboardMetrics(showTest), getCompanyOverview(showTest)]);
   } catch (err) {
     return (
       <>
@@ -27,7 +29,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <PageHeader title="Dashboard" description="ภาพรวมทุกบริษัทที่คุณเข้าถึงได้" />
+      <PageHeader title="แดชบอร์ด" description="ภาพรวมทุกบริษัทที่คุณเข้าถึงได้" />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8">
         <MetricCard icon={Building2} label="Companies" value={metrics.companies} tone="blue" />
@@ -47,7 +49,17 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-bold text-[#F4F7FB]">หน้ารวมบริษัท</h2>
             <span className="text-[11px] text-[#657A91]">1 ตึก = 1 บริษัท</span>
           </div>
-          <Button asChild variant="outline" size="sm"><Link href="/companies">จัดการบริษัท</Link></Button>
+          <div className="flex items-center gap-2">
+            {canToggleTestData() ? (
+              <Link
+                href={showTest ? "/dashboard" : "/dashboard?showTestData=1"}
+                className={`rounded-md border px-2 py-1 text-[11px] transition ${showTest ? "border-[#F0B84B] text-[#F0B84B]" : "border-[#244768] text-[#657A91] hover:text-[#9DB1C8]"}`}
+              >
+                แสดงข้อมูลทดสอบ
+              </Link>
+            ) : null}
+            <Button asChild variant="outline" size="sm"><Link href="/companies">จัดการบริษัท</Link></Button>
+          </div>
         </div>
         {companies.length === 0 ? (
           <EmptyState

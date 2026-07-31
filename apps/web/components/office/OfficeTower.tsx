@@ -1,129 +1,133 @@
 import Link from "next/link";
 import { Server, Building2, Cloud } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { floorModule, RUNTIME_COLOR, RUNTIME_LABEL } from "@/lib/office-assets";
+import { floorBand, RUNTIME_COLOR, RUNTIME_LABEL } from "@/lib/office-assets";
 import { WorkerSprite, type SpriteWorker } from "./WorkerSprite";
 
 export type TowerDept = { id: string; name: string; floorOrder: number; floorType: string; themeColor: string };
 export type TowerWorker = SpriteWorker & { departmentId: string | null };
 
+const FLOOR_H = 108; // compact so a full 6-floor tower + B1 fits ~800px (Overview mode)
+const WALL = "linear-gradient(90deg,#0a1526,#12243c 55%,#0a1526)";
+
 export function WorkerStatusIndicator({ status }: { status: string }) {
   return <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: RUNTIME_COLOR[status] ?? "#657A91" }} aria-hidden />;
 }
 
-// ---- roof cap (parapet + rooftop garden) ----
+// ---------- shared building shell ----------
 function TowerRoof({ label }: { label: string }) {
   return (
-    <div className="relative h-11 overflow-hidden rounded-t-lg border-x border-t border-[#244768]"
-      style={{ background: "linear-gradient(180deg,#35633f 0%,#274b32 45%,#1b2b3f 100%)" }}>
-      <div className="absolute inset-x-0 bottom-0 h-3 bg-[#1b3350]" />
-      <div className="absolute inset-0 flex items-center justify-between px-3">
+    <div className="relative h-10 overflow-hidden" style={{ background: "linear-gradient(180deg,#35633f,#274b32 55%,#1b2b3f)" }}>
+      <div className="absolute inset-x-0 top-0 h-2.5" style={{ background: "repeating-linear-gradient(90deg,#3f7a4b 0 10px,#2f6140 10px 20px)" }} />
+      <div className="absolute inset-x-0 bottom-0 h-2 bg-[#16283f]" />
+      <div className="absolute inset-0 flex items-center justify-between px-4">
         <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-100/90">🌿 {label}</span>
-        <span className="text-[10px] text-emerald-200/70">Rooftop</span>
+        <span className="text-[10px] text-emerald-200/70">Rooftop Garden</span>
       </div>
     </div>
   );
 }
 
-function FloorLabelTab({ order, name, color }: { order: number; name: string; color: string }) {
-  return (
-    <div className="flex w-[68px] shrink-0 flex-col items-center justify-center gap-0.5 border-r-2 px-1"
-      style={{ borderColor: color, background: `linear-gradient(180deg, ${color}2e, ${color}12)` }}>
-      <span className="font-pixel text-2xl font-black leading-none" style={{ color }}>{order}</span>
-      <span className="text-center text-[8.5px] font-bold uppercase leading-tight text-[#9DB1C8]">{name}</span>
-    </div>
-  );
+function TowerBase() {
+  return <div className="h-3" style={{ background: "linear-gradient(180deg,#16283f,#0a1424)" }} />;
 }
 
-function DepartmentFloor({
-  companyId, dept, workers, selected,
-}: { companyId: string; dept: TowerDept; workers: TowerWorker[]; selected: boolean }) {
-  const shown = workers.slice(0, 7);
+// ---------- department floor (one opening in the shell) ----------
+function DepartmentFloorScene({ companyId, dept, workers, selected }: { companyId: string; dept: TowerDept; workers: TowerWorker[]; selected: boolean }) {
+  const shown = workers.slice(0, 6);
+  const activeGlow = (s: string) => s === "WORKING" || s === "THINKING";
   return (
     <Link
       href={`/companies/${companyId}/departments/${dept.id}`}
       aria-current={selected ? "true" : undefined}
       data-testid="dept-floor"
       data-floor-name={dept.name}
-      className={cn(
-        "group relative flex min-h-[172px] border-b border-[#244768] transition",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ABEF9]",
-        selected && "ring-2 ring-inset ring-[#F0B84B]",
-      )}
+      className={cn("group relative flex overflow-hidden outline-none", selected && "ring-2 ring-inset ring-[#F0B84B]")}
+      style={{ height: FLOOR_H }}
     >
-      <FloorLabelTab order={dept.floorOrder} name={dept.name} color={dept.themeColor} />
-
-      {/* isometric pixel-art room */}
-      <div className="office-room relative min-w-0 flex-1 overflow-hidden">
+      {/* left structural wall */}
+      <span className="w-3 shrink-0" style={{ background: WALL }} aria-hidden />
+      {/* room: painted interior art fills the shell opening edge-to-edge */}
+      <span className="relative min-w-0 flex-1 overflow-hidden" style={{ background: `linear-gradient(180deg, ${dept.themeColor}26, #0c1a2c 62%)` }}>
         <img
-          src={floorModule(dept.floorType, dept.name)}
+          src={floorBand(dept.floorType, dept.name)}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover object-[center_46%] opacity-[0.97] transition duration-500 group-hover:scale-[1.03]"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-90 transition duration-500 group-hover:opacity-100"
           loading="lazy"
         />
-        {/* readability scrim on top + bottom */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/55" />
+        {/* tint + readability scrim, keeps every floor on the same value range */}
+        <span className="pointer-events-none absolute inset-0" style={{ background: `linear-gradient(180deg, ${dept.themeColor}33 0%, rgba(8,17,32,0.35) 55%, rgba(8,17,32,0.72) 100%)` }} aria-hidden />
 
-        {/* department name + live worker count */}
-        <div className="absolute left-2.5 top-2 flex items-center gap-2">
-          <span className="rounded bg-black/60 px-2 py-0.5 text-xs font-bold text-white backdrop-blur-sm">{dept.name}</span>
-          <span className="rounded bg-black/45 px-1.5 py-0.5 text-[10px] font-medium text-slate-200">{workers.length} workers</span>
-        </div>
+        {/* department label chip */}
+        <span className="absolute left-2.5 top-2 z-10 flex items-center gap-2 transition group-hover:brightness-125">
+          <span className="rounded bg-black/55 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur-sm">{dept.name}</span>
+        </span>
 
-        {/* real worker sprites — the live roster on this floor */}
-        <div className="absolute inset-x-0 bottom-0 flex items-end gap-0.5 px-2 pb-1">
-          {shown.length === 0 ? (
-            <span className="mb-1 rounded bg-black/40 px-2 py-0.5 text-[10px] text-slate-400">ว่าง — ยังไม่มี worker</span>
-          ) : (
-            shown.map((w) => <WorkerSprite key={w.id} worker={w} size={58} />)
-          )}
-          {workers.length > 7 ? <span className="mb-2 ml-0.5 text-[11px] font-semibold text-slate-200">+{workers.length - 7}</span> : null}
-        </div>
-      </div>
+        {/* structural slab seam between floors (thin — the art supplies the floor) */}
+        <span className="absolute inset-x-0 bottom-0 h-1.5" style={{ background: "linear-gradient(180deg,#2b4569,#16283f)" }} aria-hidden />
+
+        {/* real workers standing on the room's floor plane, spread across it */}
+        <span className="absolute inset-x-0 bottom-1.5 flex items-end justify-evenly px-8">
+          {shown.length === 0
+            ? <span className="mb-2 rounded bg-black/45 px-1.5 text-[10px] text-slate-300/80">— ว่าง —</span>
+            : shown.map((w) => (
+              <span key={w.id} className="relative flex flex-col items-center drop-shadow-[0_3px_3px_rgba(0,0,0,0.6)]">
+                <WorkerSprite worker={w} size={64} />
+                {activeGlow(w.runtimeStatus) ? <span className="absolute -bottom-0.5 h-1 w-7 rounded-full bg-[#3ABEF9]/40 blur-[2px]" aria-hidden /> : null}
+              </span>
+            ))}
+        </span>
+        {workers.length > 6 ? <span className="absolute bottom-4 right-2 z-10 text-[10px] font-semibold text-slate-200">+{workers.length - 6}</span> : null}
+      </span>
+      {/* right structural wall */}
+      <span className="w-3 shrink-0" style={{ background: WALL }} aria-hidden />
     </Link>
   );
 }
 
-function ServerFloor({ companyId }: { companyId: string }) {
+function ServerFloorScene() {
   return (
-    <Link href="/infrastructure" className="group flex min-h-[76px] border-x border-b border-[#244768] transition hover:brightness-110">
-      <div className="flex w-[68px] shrink-0 flex-col items-center justify-center border-r-2 border-[#243150] bg-[#0e1930]">
-        <span className="font-pixel text-lg font-black text-[#3ABEF9]">B1</span>
-        <span className="text-[8px] font-bold uppercase text-[#657A91]">Server</span>
-      </div>
-      <div className="server-floor relative flex min-w-0 flex-1 items-center gap-3 overflow-hidden rounded-b-lg px-4">
+    <Link href="/infrastructure" className="group relative flex overflow-hidden" style={{ height: 84 }}>
+      <span className="w-3 shrink-0" style={{ background: WALL }} aria-hidden />
+      <span className="server-floor relative flex min-w-0 flex-1 items-center gap-3 px-5">
         <Server className="h-6 w-6 text-[#3ABEF9]" />
-        <div className="min-w-0">
-          <div className="text-sm font-bold text-white">VPS / Server</div>
-          <div className="text-[10px] text-[#9DB1C8]">โครงสร้างพื้นฐาน · Compute · Storage</div>
-        </div>
+        <span className="min-w-0">
+          <span className="block text-sm font-bold text-white">VPS / Server</span>
+          <span className="block text-[10px] text-[#9DB1C8]">โครงสร้างพื้นฐาน · Compute · Storage</span>
+        </span>
         <Cloud className="ml-auto h-6 w-6 text-[#3478F6]/70" />
-      </div>
+      </span>
+      <span className="w-3 shrink-0" style={{ background: WALL }} aria-hidden />
     </Link>
   );
 }
 
-export function TowerLegend() {
-  const items = ["IDLE", "WORKING", "THINKING", "WAITING_APPROVAL", "ERROR", "OFFLINE"];
+// ---------- floor label column (outside the shell, constant width) ----------
+function FloorLabelTab({ order, name, color, count, height }: { order: number | string; name: string; color: string; count?: number; height: number }) {
   return (
-    <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[#244768]/60 bg-[#0b1626] px-3 py-2 text-[11px] text-[#9DB1C8]">
-      <span className="font-semibold text-[#657A91]">Worker Status:</span>
-      {items.map((key) => (
-        <span key={key} className="inline-flex items-center gap-1"><WorkerStatusIndicator status={key} />{RUNTIME_LABEL[key]}</span>
-      ))}
+    <div className="flex w-[74px] shrink-0 flex-col items-center justify-center gap-0.5 border-r-2 px-1 text-center"
+      style={{ height, borderColor: color, background: `linear-gradient(180deg, ${color}2e, ${color}10)` }}>
+      <span className="font-pixel text-xl font-black leading-none" style={{ color }}>{order}</span>
+      <span className="line-clamp-1 text-[8.5px] font-bold uppercase leading-tight text-[#9DB1C8]">{name}</span>
+      {count !== undefined ? <span className="text-[8px] text-[#657A91]">{count} worker</span> : null}
     </div>
   );
 }
 
-export function OfficeTower({
-  companyId, companyName, departments, workers, selectedDepartmentId,
-}: {
-  companyId: string;
-  companyName?: string;
-  departments: TowerDept[];
-  workers: TowerWorker[];
-  selectedDepartmentId?: string;
+export function TowerStatusLegend() {
+  const items = ["IDLE", "WORKING", "THINKING", "WAITING_APPROVAL", "ERROR", "OFFLINE"];
+  return (
+    <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[#244768]/60 bg-[#0b1626] px-3 py-2 text-[11px] text-[#9DB1C8]">
+      <span className="font-semibold text-[#657A91]">สถานะ worker:</span>
+      {items.map((key) => <span key={key} className="inline-flex items-center gap-1"><WorkerStatusIndicator status={key} />{RUNTIME_LABEL[key]}</span>)}
+    </div>
+  );
+}
+
+// ---------- assembled tower ----------
+export function OfficeTower({ companyId, companyName, departments, workers, selectedDepartmentId }: {
+  companyId: string; companyName?: string; departments: TowerDept[]; workers: TowerWorker[]; selectedDepartmentId?: string;
 }) {
   const floors = [...departments].sort((a, b) => b.floorOrder - a.floorOrder);
   const byDept = new Map<string, TowerWorker[]>();
@@ -145,17 +149,28 @@ export function OfficeTower({
 
   return (
     <div>
-      {/* building unit — framed side walls give it a tower silhouette */}
-      <div className="mx-auto w-full min-w-[560px] max-w-[760px] overflow-hidden rounded-lg border-x-2 border-[#1b3350] shadow-[0_0_50px_rgba(52,120,246,0.10)]">
-        <TowerRoof label={companyName ?? "AI Office"} />
-        {floors.map((d) => (
-          <DepartmentFloor key={d.id} companyId={companyId} dept={d} workers={byDept.get(d.id) ?? []} selected={selectedDepartmentId === d.id} />
-        ))}
-        <ServerFloor companyId={companyId} />
-        {/* foundation */}
-        <div className="h-2.5 bg-gradient-to-b from-[#1b3350] to-[#0a1424]" />
+      <div className="flex justify-center">
+        <div className="flex">
+          {/* label column */}
+          <div className="shrink-0">
+            <div style={{ height: 40 }} />
+            {floors.map((d) => (
+              <FloorLabelTab key={d.id} order={d.floorOrder} name={d.name} color={d.themeColor} count={(byDept.get(d.id) ?? []).length} height={FLOOR_H} />
+            ))}
+            <FloorLabelTab order="B1" name="Server" color="#243150" height={84} />
+          </div>
+          {/* building shell */}
+          <div className="w-full min-w-[440px] max-w-[720px] overflow-hidden rounded-b-md border-x-2 border-[#16283f] shadow-[0_0_50px_rgba(52,120,246,0.10)]">
+            <TowerRoof label={companyName ?? "AI Office"} />
+            {floors.map((d) => (
+              <DepartmentFloorScene key={d.id} companyId={companyId} dept={d} workers={byDept.get(d.id) ?? []} selected={selectedDepartmentId === d.id} />
+            ))}
+            <ServerFloorScene />
+            <TowerBase />
+          </div>
+        </div>
       </div>
-      <TowerLegend />
+      <TowerStatusLegend />
     </div>
   );
 }

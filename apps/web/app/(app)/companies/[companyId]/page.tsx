@@ -76,8 +76,8 @@ export default async function CompanyPage({ params }: { params: { companyId: str
           </CardContent>
         </Card>
 
-        {/* Summary */}
-        <div className="space-y-4">
+        {/* Summary — stays visible while inspecting the tower */}
+        <div className="space-y-4 lg:sticky lg:top-4 lg:self-start">
           <Card>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle>Department Management</CardTitle>

@@ -6,16 +6,18 @@ import type { LucideIcon } from "lucide-react";
 
 export type NavItem = { label: string; href: string; icon: LucideIcon };
 
+// Thai-primary labels; technical terms (AI, Worker, Model, Provider, VPS, API)
+// stay in English on purpose.
 export const NAV: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Companies", href: "/companies", icon: Building2 },
-  { label: "Projects", href: "/projects", icon: FolderKanban },
-  { label: "Workers", href: "/workers", icon: Bot },
-  { label: "Tasks", href: "/tasks", icon: ListChecks },
-  { label: "Approvals", href: "/approvals", icon: ShieldCheck },
-  { label: "Knowledge", href: "/knowledge", icon: BookOpen },
-  { label: "Infrastructure", href: "/infrastructure", icon: Server },
-  { label: "Usage", href: "/usage", icon: LineChart },
-  { label: "Activity Logs", href: "/activity", icon: ScrollText },
-  { label: "Settings", href: "/settings", icon: Settings },
+  { label: "แดชบอร์ด", href: "/dashboard", icon: LayoutDashboard },
+  { label: "บริษัท", href: "/companies", icon: Building2 },
+  { label: "โปรเจกต์", href: "/projects", icon: FolderKanban },
+  { label: "AI Workers", href: "/workers", icon: Bot },
+  { label: "งาน", href: "/tasks", icon: ListChecks },
+  { label: "การอนุมัติ", href: "/approvals", icon: ShieldCheck },
+  { label: "คลังความรู้", href: "/knowledge", icon: BookOpen },
+  { label: "โครงสร้างพื้นฐาน", href: "/infrastructure", icon: Server },
+  { label: "การใช้งานและค่าใช้จ่าย", href: "/usage", icon: LineChart },
+  { label: "บันทึกกิจกรรม", href: "/activity", icon: ScrollText },
+  { label: "ตั้งค่า", href: "/settings", icon: Settings },
 ];

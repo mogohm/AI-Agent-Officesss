@@ -41,6 +41,14 @@ model User {
   approvalsAssigned Approval[]     @relation("ApprovalAssignedTo")
   activityLogs    ActivityLog[]
   documents       KnowledgeDocument[]
+
+  // --- autonomous delivery ---
+  deliveryRoles     DeliveryMember[]
+  missionsCreated   Mission[]           @relation("MissionCreatedBy")
+  missionAuditLogs  MissionAuditLog[]
+  defectsAssigned   Defect[]            @relation("DefectAssignedTo")
+  defectComments    DefectComment[]
+  releaseApprovals  ReleaseCandidate[]  @relation("ReleaseApprovedBy")
 }
 
 // Auth.js (NextAuth v5) adapter models
@@ -123,6 +131,9 @@ model Company {
   currency     String        @default("USD")
   status       CompanyStatus @default(ACTIVE)
   monthlyBudget Decimal?     @db.Decimal(12, 2)
+  // Records created by automated tests. Hidden from normal UI queries by
+  // default; never auto-deleted (tests clean up after themselves).
+  isTestData   Boolean       @default(false)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   archivedAt   DateTime?
@@ -668,4 +679,950 @@ model SystemSetting {
   key       String   @unique
   value     Json
   updatedAt DateTime @updatedAt
+}
+
+// ============================================================================
+// AUTONOMOUS DELIVERY CENTER
+// Additive namespace — no existing office model is modified or dropped.
+// See docs/autonomous-delivery/architecture.md
+// ============================================================================
+
+enum DeliveryRole {
+  OWNER
+  DELIVERY_MANAGER
+  DEVELOPER
+  QA
+  REVIEWER
+  VIEWER
+}
+
+enum MissionStatus {
+  DRAFT
+  ANALYZING
+  REQUIREMENTS_READY
+  PLANNING
+  EXECUTING
+  REVIEWING
+  TESTING
+  PREVIEW_DEPLOYING
+  UAT
+  REVISION
+  RELEASE_READY
+  AWAITING_APPROVAL
+  DEPLOYING
+  COMPLETED
+  PAUSED
+  BLOCKED
+  FAILED
+  CANCELLED
+}
+
+enum AutonomyLevel {
+  LEVEL_1
+  LEVEL_2
+  LEVEL_3
+  LEVEL_4
+}
+
+enum BlockedReason {
+  NONE
+  BUDGET_EXCEEDED
+  TIME_EXCEEDED
+  MAX_ATTEMPTS
+  REPEATED_FAILURE
+  NO_PROGRESS
+  DEADLOCK
+  BLOCKED_CREDENTIALS
+  PROVIDER_ERROR
+  MANUAL_ESCALATION
+}
+
+enum AgentRoleKind {
+  MISSION_MANAGER
+  REQUIREMENT
+  UX_VISUAL
+  ARCHITECT
+  ASSET
+  FRONTEND_DEV
+  BACKEND_DEV
+  DATABASE
+  CODE_REVIEW
+  QA
+  UAT
+  ROOT_CAUSE
+  RELEASE
+}
+
+enum AgentRunStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  TIMED_OUT
+}
+
+enum WorkPackageStatus {
+  BACKLOG
+  READY
+  ASSIGNED
+  IN_PROGRESS
+  IN_REVIEW
+  CHANGES_REQUESTED
+  TESTING
+  UAT
+  PASSED
+  FAILED
+  BLOCKED
+  CANCELLED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum RequirementKind {
+  FUNCTIONAL
+  VISUAL
+  NON_FUNCTIONAL
+  CONSTRAINT
+  OUT_OF_SCOPE
+}
+
+enum CriterionStatus {
+  PENDING
+  IN_PROGRESS
+  PASSED
+  FAILED
+  WAIVED
+}
+
+enum TestKind {
+  STATIC
+  LINT
+  TYPECHECK
+  UNIT
+  INTEGRATION
+  E2E
+  BUILD
+  SECURITY
+}
+
+enum TestRunStatus {
+  PENDING
+  RUNNING
+  PASSED
+  FAILED
+  ERROR
+  SKIPPED
+}
+
+enum DefectSeverity {
+  P0
+  P1
+  P2
+  P3
+}
+
+enum DefectStatus {
+  OPEN
+  TRIAGED
+  IN_PROGRESS
+  READY_FOR_RETEST
+  RETESTING
+  RESOLVED
+  REOPENED
+  ACCEPTED
+  BLOCKED
+}
+
+enum QualityGateKind {
+  RQ_GATE
+  ARCHITECTURE_GATE
+  REVIEW_GATE
+  QA_GATE
+  PREVIEW_GATE
+  UAT_GATE
+  VISUAL_GATE
+  RELEASE_GATE
+}
+
+enum GateStatus {
+  PENDING
+  PASSED
+  FAILED
+  SKIPPED
+  WAIVED
+}
+
+enum ArtifactKind {
+  SCREENSHOT
+  TRACE
+  VIDEO
+  DOM_SNAPSHOT
+  CONSOLE_LOG
+  NETWORK_LOG
+  TEST_REPORT
+  DIFF_IMAGE
+  GENERATED_ASSET
+  REFERENCE
+  LOG
+}
+
+enum DeploymentEnv {
+  PREVIEW
+  STAGING
+  PRODUCTION
+}
+
+enum DeploymentStatus {
+  PENDING
+  BUILDING
+  READY
+  FAILED
+  CANCELLED
+}
+
+model DeliveryMember {
+  id        String       @id @default(cuid())
+  userId    String       @unique
+  role      DeliveryRole @default(VIEWER)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([role])
+}
+
+model Mission {
+  id            String        @id @default(cuid())
+  key           String        @unique
+  title         String
+  instruction   String        @db.Text
+  status        MissionStatus @default(DRAFT)
+  blockedReason BlockedReason @default(NONE)
+  blockedDetail String?       @db.Text
+
+  autonomyLevel AutonomyLevel @default(LEVEL_2)
+  repositoryUrl String
+  baseBranch    String        @default("master")
+  missionBranch String?
+
+  targetRoutes  String[]
+  targetModules String[]
+
+  visualTarget      Int @default(95)
+  visualMinCategory Int @default(9)
+  functionalTarget  Int @default(100)
+
+  iteration       Int     @default(0)
+  maxIterations   Int     @default(10)
+  requireApproval Boolean @default(true)
+  testDataPolicy  String  @default("isolated")
+
+  createdById String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  deadlineAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  createdBy    User?                 @relation("MissionCreatedBy", fields: [createdById], references: [id])
+  budget       MissionBudget?
+  references   MissionReference[]
+  requirements MissionRequirement[]
+  workPackages WorkPackage[]
+  agentRuns    AgentRun[]
+  workspaces   RepositoryWorkspace[]
+  testPlans    TestPlan[]
+  testRuns     TestRun[]
+  uatPlans     UATPlan[]
+  uatRuns      UATRun[]
+  checkpoints  VisualCheckpoint[]
+  defects      Defect[]
+  gateResults  QualityGateResult[]
+  releases     ReleaseCandidate[]
+  deployments  DeploymentRun[]
+  usage        AgentUsageRecord[]
+  auditLogs    MissionAuditLog[]
+  pullRequests PullRequestRecord[]
+  commits      GitCommitRecord[]
+  artifacts    BrowserArtifact[]
+
+  @@index([status])
+  @@index([status, updatedAt])
+  @@index([repositoryUrl, baseBranch])
+  @@index([createdAt])
+}
+
+model MissionBudget {
+  id                   String   @id @default(cuid())
+  missionId            String   @unique
+  maxCostUsd           Decimal  @default(25) @db.Decimal(12, 4)
+  spentCostUsd         Decimal  @default(0) @db.Decimal(12, 4)
+  maxTokens            Int      @default(5000000)
+  spentTokens          Int      @default(0)
+  maxDurationMin       Int      @default(480)
+  maxAttemptsPerDefect Int      @default(5)
+  maxIdenticalFailures Int      @default(2)
+  maxParallelWriters   Int      @default(2)
+  maxParallelReaders   Int      @default(4)
+  updatedAt            DateTime @updatedAt
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+}
+
+model MissionReference {
+  id         String   @id @default(cuid())
+  missionId  String
+  label      String
+  storageKey String
+  mimeType   String?
+  width      Int?
+  height     Int?
+  createdAt  DateTime @default(now())
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@index([missionId])
+}
+
+model MissionRequirement {
+  id          String          @id @default(cuid())
+  missionId   String
+  key         String
+  kind        RequirementKind @default(FUNCTIONAL)
+  title       String
+  description String          @db.Text
+  userStory   String?         @db.Text
+  rationale   String?         @db.Text
+  ambiguity   String?         @db.Text
+  priority    Int             @default(2)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  mission  Mission               @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  criteria AcceptanceCriterion[]
+
+  @@unique([missionId, key])
+  @@index([missionId, kind])
+}
+
+model AcceptanceCriterion {
+  id            String          @id @default(cuid())
+  requirementId String
+  key           String
+  statement     String          @db.Text
+  measurement   String          @db.Text
+  status        CriterionStatus @default(PENDING)
+  required      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  requirement  MissionRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  traces       RequirementTrace[]
+  defects      Defect[]
+  uatSteps     UATStep[]
+  workPackages WorkPackage[]
+
+  @@unique([requirementId, key])
+  @@index([status])
+}
+
+model RequirementTrace {
+  id            String   @id @default(cuid())
+  criterionId   String
+  workPackageId String?
+  commitId      String?
+  testResultId  String?
+  uatStepId     String?
+  artifactId    String?
+  note          String?  @db.Text
+  satisfied     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  criterion   AcceptanceCriterion @relation(fields: [criterionId], references: [id], onDelete: Cascade)
+  workPackage WorkPackage?        @relation(fields: [workPackageId], references: [id], onDelete: SetNull)
+
+  @@index([criterionId, satisfied])
+}
+
+model WorkPackage {
+  id        String            @id @default(cuid())
+  missionId String
+  key       String
+  title     String
+  objective String            @db.Text
+  scope     String            @db.Text
+  role      AgentRoleKind
+  status    WorkPackageStatus @default(BACKLOG)
+  riskLevel RiskLevel         @default(LOW)
+
+  criterionId  String?
+  targetFiles  String[]
+  branch       String?
+  worktreePath String?
+
+  requiresTests    Boolean @default(true)
+  requiresEvidence Boolean @default(true)
+  attemptCount     Int     @default(0)
+  maxAttempts      Int     @default(3)
+  costUsd          Decimal @default(0) @db.Decimal(12, 4)
+
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  mission      Mission                 @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  criterion    AcceptanceCriterion?    @relation(fields: [criterionId], references: [id], onDelete: SetNull)
+  dependsOn    WorkPackageDependency[] @relation("Dependent")
+  dependedOnBy WorkPackageDependency[] @relation("Dependency")
+  runs         WorkPackageRun[]
+  changes      CodeChange[]
+  commits      GitCommitRecord[]
+  defects      Defect[]
+  agentRuns    AgentRun[]
+  traces       RequirementTrace[]
+
+  @@unique([missionId, key])
+  @@index([missionId, status])
+  @@index([status, updatedAt])
+  @@index([role])
+}
+
+model WorkPackageDependency {
+  id            String @id @default(cuid())
+  workPackageId String
+  dependsOnId   String
+
+  workPackage WorkPackage @relation("Dependent", fields: [workPackageId], references: [id], onDelete: Cascade)
+  dependsOn   WorkPackage @relation("Dependency", fields: [dependsOnId], references: [id], onDelete: Cascade)
+
+  @@unique([workPackageId, dependsOnId])
+  @@index([dependsOnId])
+}
+
+model WorkPackageRun {
+  id            String            @id @default(cuid())
+  workPackageId String
+  attempt       Int
+  status        WorkPackageStatus
+  startedAt     DateTime          @default(now())
+  completedAt   DateTime?
+  durationMs    Int?
+  summary       String?           @db.Text
+  error         String?           @db.Text
+
+  workPackage WorkPackage @relation(fields: [workPackageId], references: [id], onDelete: Cascade)
+
+  @@index([workPackageId, attempt])
+}
+
+model AgentRun {
+  id            String         @id @default(cuid())
+  missionId     String
+  workPackageId String?
+  role          AgentRoleKind
+  status        AgentRunStatus @default(PENDING)
+
+  promptTemplateId String?
+  promptVersion    String?
+  promptHash       String?
+  provider         String?
+  model            String?
+
+  inputSummary  String? @db.Text
+  outputSummary String? @db.Text
+  error         String? @db.Text
+
+  promptTokens     Int     @default(0)
+  completionTokens Int     @default(0)
+  totalTokens      Int     @default(0)
+  costUsd          Decimal @default(0) @db.Decimal(12, 6)
+  latencyMs        Int?
+
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  mission     Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  workPackage WorkPackage?   @relation(fields: [workPackageId], references: [id], onDelete: SetNull)
+  messages    AgentMessage[]
+
+  @@index([missionId, status])
+  @@index([role, status])
+  @@index([createdAt])
+}
+
+model AgentMessage {
+  id         String   @id @default(cuid())
+  agentRunId String
+  seq        Int
+  role       String
+  content    String   @db.Text
+  toolName   String?
+  toolArgs   Json?
+  createdAt  DateTime @default(now())
+
+  agentRun AgentRun @relation(fields: [agentRunId], references: [id], onDelete: Cascade)
+
+  @@unique([agentRunId, seq])
+}
+
+model RepositoryWorkspace {
+  id             String    @id @default(cuid())
+  missionId      String
+  kind           String    @default("base")
+  workPackageKey String?
+  path           String
+  branch         String?
+  headSha        String?
+  clean          Boolean   @default(true)
+  retainUntil    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([missionId, path])
+  @@index([missionId, kind])
+}
+
+model CodeChange {
+  id            String   @id @default(cuid())
+  workPackageId String
+  filePath      String
+  changeType    String
+  linesAdded    Int      @default(0)
+  linesRemoved  Int      @default(0)
+  diff          String?  @db.Text
+  createdAt     DateTime @default(now())
+
+  workPackage WorkPackage @relation(fields: [workPackageId], references: [id], onDelete: Cascade)
+
+  @@index([workPackageId])
+}
+
+model GitCommitRecord {
+  id            String   @id @default(cuid())
+  missionId     String
+  workPackageId String?
+  sha           String
+  branch        String
+  message       String   @db.Text
+  authorName    String?
+  filesChanged  Int      @default(0)
+  pushed        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  mission     Mission      @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  workPackage WorkPackage? @relation(fields: [workPackageId], references: [id], onDelete: SetNull)
+
+  @@unique([missionId, sha])
+  @@index([branch])
+}
+
+model PullRequestRecord {
+  id          String   @id @default(cuid())
+  missionId   String
+  number      Int
+  url         String
+  headBranch  String
+  baseBranch  String
+  state       String
+  checksState String?
+  merged      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([missionId, number])
+  @@index([state])
+}
+
+model TestPlan {
+  id        String   @id @default(cuid())
+  missionId String
+  name      String
+  createdAt DateTime @default(now())
+
+  mission Mission     @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  suites  TestSuite[]
+
+  @@index([missionId])
+}
+
+model TestSuite {
+  id         String   @id @default(cuid())
+  testPlanId String
+  name       String
+  kind       TestKind
+  command    String
+  required   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  testPlan TestPlan  @relation(fields: [testPlanId], references: [id], onDelete: Cascade)
+  runs     TestRun[]
+
+  @@index([testPlanId, kind])
+}
+
+model TestRun {
+  id          String        @id @default(cuid())
+  missionId   String
+  testSuiteId String?
+  kind        TestKind
+  status      TestRunStatus @default(PENDING)
+  command     String
+  exitCode    Int?
+  passed      Int           @default(0)
+  failed      Int           @default(0)
+  skipped     Int           @default(0)
+  durationMs  Int?
+  reportKey   String?
+  stdoutTail  String?       @db.Text
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime      @default(now())
+
+  mission   Mission      @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  testSuite TestSuite?   @relation(fields: [testSuiteId], references: [id], onDelete: SetNull)
+  results   TestResult[]
+
+  @@index([missionId, status])
+  @@index([kind, status])
+  @@index([createdAt])
+}
+
+model TestResult {
+  id         String        @id @default(cuid())
+  testRunId  String
+  name       String
+  status     TestRunStatus
+  durationMs Int?
+  message    String?       @db.Text
+  filePath   String?
+
+  testRun TestRun @relation(fields: [testRunId], references: [id], onDelete: Cascade)
+
+  @@index([testRunId, status])
+}
+
+model UATPlan {
+  id        String   @id @default(cuid())
+  missionId String
+  name      String
+  createdAt DateTime @default(now())
+
+  mission Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  steps   UATStep[]
+
+  @@index([missionId])
+}
+
+model UATStep {
+  id               String         @id @default(cuid())
+  uatPlanId        String
+  criterionId      String?
+  seq              Int
+  route            String
+  actor            String         @default("owner")
+  precondition     String?        @db.Text
+  action           String         @db.Text
+  expected         String         @db.Text
+  dbAssertion      String?        @db.Text
+  screenshotRegion String?
+  severityOnFail   DefectSeverity @default(P1)
+  required         Boolean        @default(true)
+
+  uatPlan   UATPlan              @relation(fields: [uatPlanId], references: [id], onDelete: Cascade)
+  criterion AcceptanceCriterion? @relation(fields: [criterionId], references: [id], onDelete: SetNull)
+  results   UATStepResult[]
+
+  @@unique([uatPlanId, seq])
+}
+
+model UATRun {
+  id             String        @id @default(cuid())
+  missionId      String
+  uatPlanId      String?
+  status         TestRunStatus @default(PENDING)
+  previewUrl     String?
+  viewport       String?
+  passedSteps    Int           @default(0)
+  failedSteps    Int           @default(0)
+  consoleErrors  Int           @default(0)
+  failedRequests Int           @default(0)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime      @default(now())
+
+  mission     Mission            @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  results     UATStepResult[]
+  artifacts   BrowserArtifact[]
+  comparisons VisualComparison[]
+
+  @@index([missionId, status])
+  @@index([createdAt])
+}
+
+model UATStepResult {
+  id         String        @id @default(cuid())
+  uatRunId   String
+  uatStepId  String
+  status     TestRunStatus
+  actual     String?       @db.Text
+  durationMs Int?
+
+  uatRun  UATRun  @relation(fields: [uatRunId], references: [id], onDelete: Cascade)
+  uatStep UATStep @relation(fields: [uatStepId], references: [id], onDelete: Cascade)
+
+  @@unique([uatRunId, uatStepId])
+  @@index([status])
+}
+
+model BrowserArtifact {
+  id         String       @id @default(cuid())
+  missionId  String
+  uatRunId   String?
+  kind       ArtifactKind
+  storageKey String
+  label      String?
+  viewport   String?
+  sizeBytes  Int?
+  createdAt  DateTime     @default(now())
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  uatRun  UATRun? @relation(fields: [uatRunId], references: [id], onDelete: SetNull)
+
+  @@index([missionId, kind])
+}
+
+model VisualCheckpoint {
+  id           String   @id @default(cuid())
+  missionId    String
+  key          String
+  route        String
+  viewport     String
+  clipRegion   String?
+  referenceKey String?
+  targetScore  Int      @default(95)
+  required     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  mission     Mission            @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  comparisons VisualComparison[]
+
+  @@unique([missionId, key, viewport])
+  @@index([missionId])
+}
+
+model VisualComparison {
+  id              String   @id @default(cuid())
+  checkpointId    String
+  uatRunId        String?
+  screenshotKey   String
+  referenceKey    String?
+  diffKey         String?
+  pixelDiffPct    Decimal  @default(0) @db.Decimal(6, 3)
+  perceptualScore Decimal  @default(0) @db.Decimal(6, 3)
+  overallScore    Int      @default(0)
+  threshold       Int      @default(95)
+  passed          Boolean  @default(false)
+  categoryScores  Json?
+  failedRegions   Json?
+  explanation     String?  @db.Text
+  createdAt       DateTime @default(now())
+
+  checkpoint VisualCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+  uatRun     UATRun?          @relation(fields: [uatRunId], references: [id], onDelete: SetNull)
+
+  @@index([checkpointId, passed])
+}
+
+model Defect {
+  id            String         @id @default(cuid())
+  missionId     String
+  workPackageId String?
+  criterionId   String?
+  key           String
+  title         String
+  description   String         @db.Text
+  severity      DefectSeverity @default(P2)
+  status        DefectStatus   @default(OPEN)
+  category      String         @default("functional")
+
+  expected       String?  @db.Text
+  actual         String?  @db.Text
+  reproSteps     String?  @db.Text
+  suspectedFiles String[]
+  rootCause      String?  @db.Text
+  correctionPlan String?  @db.Text
+
+  assignedRole     AgentRoleKind?
+  assignedToId     String?
+  attemptCount     Int            @default(0)
+  maxAttempts      Int            @default(5)
+  failureSignature String?
+  resolvedAt       DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  mission     Mission              @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  workPackage WorkPackage?         @relation(fields: [workPackageId], references: [id], onDelete: SetNull)
+  criterion   AcceptanceCriterion? @relation(fields: [criterionId], references: [id], onDelete: SetNull)
+  assignedTo  User?                @relation("DefectAssignedTo", fields: [assignedToId], references: [id])
+  evidence    DefectEvidence[]
+  comments    DefectComment[]
+
+  @@unique([missionId, key])
+  @@index([missionId, status])
+  @@index([severity, status])
+  @@index([failureSignature])
+}
+
+model DefectEvidence {
+  id         String       @id @default(cuid())
+  defectId   String
+  kind       ArtifactKind
+  storageKey String?
+  note       String?      @db.Text
+  createdAt  DateTime     @default(now())
+
+  defect Defect @relation(fields: [defectId], references: [id], onDelete: Cascade)
+
+  @@index([defectId])
+}
+
+model DefectComment {
+  id        String         @id @default(cuid())
+  defectId  String
+  userId    String?
+  role      AgentRoleKind?
+  body      String         @db.Text
+  createdAt DateTime       @default(now())
+
+  defect Defect @relation(fields: [defectId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([defectId])
+}
+
+model QualityGate {
+  id        String          @id @default(cuid())
+  kind      QualityGateKind @unique
+  name      String
+  config    Json?
+  enabled   Boolean         @default(true)
+  updatedAt DateTime        @updatedAt
+
+  results QualityGateResult[]
+}
+
+model QualityGateResult {
+  id              String          @id @default(cuid())
+  missionId       String
+  gateId          String?
+  kind            QualityGateKind
+  status          GateStatus      @default(PENDING)
+  iteration       Int             @default(0)
+  checks          Json?
+  blockingReasons String[]
+  evaluatedAt     DateTime        @default(now())
+
+  mission Mission      @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  gate    QualityGate? @relation(fields: [gateId], references: [id], onDelete: SetNull)
+
+  @@index([missionId, kind])
+  @@index([status])
+  @@index([evaluatedAt])
+}
+
+model ReleaseCandidate {
+  id                String    @id @default(cuid())
+  missionId         String
+  version           String
+  commitSha         String?
+  pullRequestNumber Int?
+  summary           String?   @db.Text
+  gatesSnapshot     Json?
+  approved          Boolean   @default(false)
+  approvedById      String?
+  approvedAt        DateTime?
+  approvalNote      String?   @db.Text
+  createdAt         DateTime  @default(now())
+
+  mission     Mission         @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  approvedBy  User?           @relation("ReleaseApprovedBy", fields: [approvedById], references: [id])
+  deployments DeploymentRun[]
+
+  @@unique([missionId, version])
+  @@index([approved])
+}
+
+model DeploymentRun {
+  id                 String           @id @default(cuid())
+  missionId          String
+  releaseCandidateId String?
+  environment        DeploymentEnv    @default(PREVIEW)
+  status             DeploymentStatus @default(PENDING)
+  url                String?
+  commitSha          String?
+  healthy            Boolean          @default(false)
+  logTail            String?          @db.Text
+  startedAt          DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime         @default(now())
+
+  mission          Mission           @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  releaseCandidate ReleaseCandidate? @relation(fields: [releaseCandidateId], references: [id], onDelete: SetNull)
+
+  @@index([missionId, environment])
+  @@index([status])
+}
+
+model AgentUsageRecord {
+  id               String        @id @default(cuid())
+  missionId        String
+  agentRunId       String?
+  role             AgentRoleKind
+  provider         String
+  model            String
+  promptTokens     Int           @default(0)
+  completionTokens Int           @default(0)
+  totalTokens      Int           @default(0)
+  costUsd          Decimal       @db.Decimal(12, 6)
+  recordedAt       DateTime      @default(now())
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@index([missionId, recordedAt])
+  @@index([provider, model])
+}
+
+model MissionAuditLog {
+  id         String         @id @default(cuid())
+  missionId  String
+  userId     String?
+  actorRole  AgentRoleKind?
+  action     String
+  entityType String
+  entityId   String?
+  fromState  String?
+  toState    String?
+  reason     String?        @db.Text
+  evidence   Json?
+  createdAt  DateTime       @default(now())
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([missionId, createdAt])
+  @@index([action])
+  @@index([entityType, entityId])
 }

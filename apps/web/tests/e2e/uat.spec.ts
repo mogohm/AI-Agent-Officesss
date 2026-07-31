@@ -1,5 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import fs from "node:fs";
+import { PrismaClient } from "@prisma/client";
 
 // End-to-end UAT against the running app with REAL database mutations.
 // Task execution is real: the worker calls a local mock OpenAI-compatible
@@ -39,6 +40,20 @@ async function waitForStatus(page: Page, text: RegExp, timeoutMs = 45000) {
 
 test.describe.configure({ mode: "serial" });
 
+// Records this suite creates are flagged as test data (hidden from the normal
+// UI) and removed afterwards, so repeated runs never accumulate UAT companies.
+const prisma = new PrismaClient();
+
+test.afterAll(async () => {
+  try {
+    await prisma.company.updateMany({ where: { name: { startsWith: "UAT Corp" } }, data: { isTestData: true } });
+    // cascade deletes departments/workers/projects/tasks/approvals/usage/logs
+    await prisma.company.deleteMany({ where: { name: { startsWith: "UAT Corp" } } });
+    await prisma.user.deleteMany({ where: { email: { endsWith: "@uat.local" } } });
+  } catch { /* DB not reachable — nothing to clean */ }
+  finally { await prisma.$disconnect(); }
+});
+
 test("01 · owner login + dashboard", async ({ page }) => {
   await login(page);
   await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
@@ -54,6 +69,8 @@ test("02 · create company + persists after reload", async ({ page }) => {
   await page.waitForURL(/\/companies\/[a-z0-9]{20,}$/i, { timeout: 20000 });
   ctx.companyId = page.url().split("/").pop()!;
   expect(ctx.companyId).toBeTruthy();
+  // flag immediately so it never shows up in the production dashboard
+  await prisma.company.update({ where: { id: ctx.companyId }, data: { isTestData: true } }).catch(() => {});
   await shot(page, "02-company-page");
   // persistence: appears in the list on a fresh navigation
   await page.goto("/companies");
