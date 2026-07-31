@@ -219,7 +219,10 @@ export async function runAssetStandardization(opts: {
 
       // deterministic normalization to the exact required canvas
       const norm = await imageTool([
-        "normalize", "--src", path.relative(wt.path, raw).replace(/\\/g, "/"),
+        // absolute path: the artifact dir is a sibling of the worktree but still
+        // inside the mission workspace, so the jail accepts it while the
+        // traversal pattern rule (correctly) rejects "../.."
+        "normalize", "--src", raw.replace(/\\/g, "/"),
         "--out", asset.targetPath, "--width", String(asset.requiredWidth), "--height", String(asset.requiredHeight),
         "--fit", asset.category === "building" || asset.requiresAlpha ? "contain" : "cover",
         ...(asset.requiresAlpha ? ["--alpha"] : []),
@@ -264,7 +267,7 @@ export async function runAssetStandardization(opts: {
   for (const [cat, dirFrag, cols] of [["buildings", "/buildings/", 2], ["floors", "/floors/", 1], ["workers", "/workers/", 3]] as const) {
     const paths = byCat(dirFrag);
     if (!paths.length) continue;
-    await imageTool(["contact", "--out", path.relative(wt.path, path.join(artDir, "contact-sheets", `${cat}.webp`)).replace(/\\/g, "/"),
+    await imageTool(["contact", "--out", path.join(artDir, "contact-sheets", `${cat}.webp`).replace(/\\/g, "/"),
       "--tile-w", "400", "--tile-h", "300", "--cols", String(cols), "--paths", ...paths], ctx);
   }
 
