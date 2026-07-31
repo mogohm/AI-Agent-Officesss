@@ -1,6 +1,7 @@
 import {
   LayoutDashboard, Building2, FolderKanban, Bot, ListChecks, ShieldCheck,
   BookOpen, Server, LineChart, ScrollText, Settings,
+  Rocket,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -10,6 +11,7 @@ export type NavItem = { label: string; href: string; icon: LucideIcon };
 // stay in English on purpose.
 export const NAV: NavItem[] = [
   { label: "แดชบอร์ด", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Mission Control", href: "/missions", icon: Rocket },
   { label: "บริษัท", href: "/companies", icon: Building2 },
   { label: "โปรเจกต์", href: "/projects", icon: FolderKanban },
   { label: "AI Workers", href: "/workers", icon: Bot },

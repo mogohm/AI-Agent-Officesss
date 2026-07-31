@@ -1626,3 +1626,124 @@ model MissionAuditLog {
   @@index([action])
   @@index([entityType, entityId])
 }
+
+// ============================================================================
+// VERTICAL SLICE — queue, tool executions, prompts, provider config, events
+// ============================================================================
+
+enum QueueName {
+  MISSION_ORCHESTRATION
+  AGENT_EXECUTION
+  REPOSITORY_OPERATIONS
+  EVIDENCE_PROCESSING
+}
+
+enum QueueJobStatus {
+  QUEUED
+  CLAIMED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  DEAD
+}
+
+// Durable job record. The DB is the queue of record; Redis/BullMQ (when
+// configured) is only a low-latency notifier. `jobKey` is deterministic so a
+// duplicate delivery can never create a second job.
+model QueueJob {
+  id            String         @id @default(cuid())
+  jobKey        String         @unique
+  queue         QueueName
+  status        QueueJobStatus @default(QUEUED)
+  missionId     String?
+  workPackageId String?
+  agentRunId    String?
+  correlationId String
+  payload       Json
+  attempt       Int            @default(0)
+  maxAttempts   Int            @default(3)
+  runAfter      DateTime       @default(now())
+  claimedBy     String?
+  claimedAt     DateTime?
+  leaseUntil    DateTime?
+  lastError     String?        @db.Text
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([queue, status, runAfter])
+  @@index([missionId, status])
+  @@index([leaseUntil])
+}
+
+// Every shell command the worker runs — the audit trail for §7/§14.
+model AgentToolExecution {
+  id          String    @id @default(cuid())
+  agentRunId  String?
+  missionId   String
+  toolName    String
+  executable  String
+  args        String[]
+  cwd         String
+  exitCode    Int?
+  timedOut    Boolean   @default(false)
+  durationMs  Int?
+  stdoutTail  String?   @db.Text
+  stderrTail  String?   @db.Text
+  blocked     Boolean   @default(false)
+  blockReason String?
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([missionId, startedAt])
+  @@index([agentRunId])
+  @@index([blocked])
+}
+
+// Versioned prompt templates (§9/§18) — never hard-coded in app logic.
+model PromptTemplate {
+  id        String   @id @default(cuid())
+  key       String
+  version   String
+  role      AgentRoleKind
+  body      String   @db.Text
+  variables String[]
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@unique([key, version])
+  @@index([role, active])
+}
+
+enum ProviderKind {
+  OPENAI
+  ANTHROPIC
+  GOOGLE
+  LOCAL
+}
+
+// Which model class routes to which provider/model (§17). Secrets are NOT here.
+model ProviderConfiguration {
+  id          String       @id @default(cuid())
+  modelClass  String       @unique
+  provider    ProviderKind
+  model       String
+  maxTokens   Int          @default(8000)
+  temperature Float        @default(0.2)
+  timeoutMs   Int          @default(120000)
+  enabled     Boolean      @default(true)
+  updatedAt   DateTime     @updatedAt
+}
+
+// Replayable activity feed — SSE is derived from these rows, never the reverse.
+model MissionEvent {
+  id        String   @id @default(cuid())
+  missionId String
+  seq       BigInt   @default(autoincrement())
+  type      String
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@index([missionId, seq])
+  @@index([createdAt])
+}

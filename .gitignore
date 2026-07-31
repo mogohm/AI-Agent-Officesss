@@ -45,3 +45,6 @@ references/*
 
 # Logs
 *.log
+
+# mission workspaces (clones + worktrees are local execution state)
+workspaces/missions/

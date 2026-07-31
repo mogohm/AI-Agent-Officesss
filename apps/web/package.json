@@ -23,7 +23,13 @@
     "verify": "npm run lint && npm run typecheck && npm run test:unit && npm run build",
     "test:delivery": "vitest run tests/unit/delivery.test.ts",
     "delivery:check": "prisma validate && prisma migrate status",
-    "verify:delivery": "npm run lint && npm run typecheck && npm run test:unit && npm run test:delivery && npm run delivery:check && npm run build"
+    "verify:delivery": "npm run lint && npm run typecheck && npm run test:unit && npm run missions:verify && npm run delivery:check && npm run build",
+    "missions:worker": "tsx worker/delivery/index.ts",
+    "missions:worker:dev": "tsx watch worker/delivery/index.ts",
+    "missions:status": "tsx scripts/missions/status.ts",
+    "missions:seed": "tsx scripts/missions/reference-fidelity.ts",
+    "missions:queue": "tsx scripts/missions/queue.ts",
+    "missions:verify": "vitest run tests/unit/delivery.test.ts tests/unit/delivery-slice.test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
