@@ -1747,3 +1747,74 @@ model MissionEvent {
   @@index([missionId, seq])
   @@index([createdAt])
 }
+
+// ============================================================================
+// DURABLE ASSET GENERATION RECORDS (correction cycle 1, §2)
+// The JSON manifest becomes a PROJECTION of these rows — never the source.
+// ============================================================================
+
+enum AssetValidationStatus {
+  PENDING
+  PASSED
+  FAILED
+  NEEDS_REVIEW
+}
+
+enum AssetReviewStatus {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+  BLOCKED
+}
+
+enum AssetAction {
+  RETAIN
+  NORMALIZE
+  EDIT
+  REGENERATE
+}
+
+model AssetGenerationRecord {
+  id                   String                @id @default(cuid())
+  missionId            String
+  workPackageId        String
+  agentRunId           String?
+  assetKey             String
+  targetPath           String
+  sourcePath           String?
+  action               AssetAction           @default(REGENERATE)
+  attemptNumber        Int                   @default(1)
+
+  provider             String?
+  model                String?
+  promptTemplate       String?
+  promptVersion        String?
+  renderedPromptHash   String?
+
+  rawOutputPath        String?
+  normalizedOutputPath String?
+  width                Int?
+  height               Int?
+  format               String?
+  hasAlpha             Boolean?
+  sha256               String?
+
+  estimatedCost        Decimal               @default(0) @db.Decimal(12, 6)
+  actualCost           Decimal               @default(0) @db.Decimal(12, 6)
+
+  validationStatus     AssetValidationStatus @default(PENDING)
+  reviewStatus         AssetReviewStatus     @default(PENDING)
+  // set when a field could not be proven and was reconstructed from disk
+  reconstructed        Boolean               @default(false)
+  integrityWarning     String?               @db.Text
+
+  correlationId        String?
+  startedAt            DateTime              @default(now())
+  completedAt          DateTime?
+  error                String?               @db.Text
+
+  @@unique([workPackageId, assetKey, attemptNumber])
+  @@index([missionId, validationStatus])
+  @@index([workPackageId, assetKey])
+  @@index([sha256])
+}

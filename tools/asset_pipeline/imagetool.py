@@ -176,6 +176,13 @@ def main() -> int:
     b = sub.add_parser("bbox"); b.add_argument("--path", required=True)
     h = sub.add_parser("phash"); h.add_argument("--path", required=True)
 
+    d = sub.add_parser("distinct"); d.add_argument("--a", required=True); d.add_argument("--b", required=True)
+
+    ct = sub.add_parser("contain"); ct.add_argument("--src", required=True); ct.add_argument("--out", required=True)
+    ct.add_argument("--width", type=int, required=True); ct.add_argument("--height", type=int, required=True)
+    ct.add_argument("--bottom-pct", type=float, default=2.0); ct.add_argument("--side-pct", type=float, default=2.5)
+    ct.add_argument("--top-pct", type=float, default=1.5); ct.add_argument("--alpha", action="store_true")
+
     c = sub.add_parser("contact"); c.add_argument("--out", required=True)
     c.add_argument("--tile-w", type=int, default=320); c.add_argument("--tile-h", type=int, default=240)
     c.add_argument("--cols", type=int, default=4); c.add_argument("--paths", nargs="+", required=True)
@@ -183,11 +190,161 @@ def main() -> int:
     a = ap.parse_args()
     try:
         result = {"normalize": op_normalize, "validate": op_validate, "bbox": op_bbox,
-                  "phash": op_phash, "contact": op_contact}[a.cmd](a)
+                  "phash": op_phash, "contact": op_contact, "distinct": op_distinct,
+                  "contain": op_contain}[a.cmd](a)
     except Exception as e:
         result = {"ok": False, "error": f"{type(e).__name__}: {e}"}
     print(json.dumps(result))
     return 0 if result.get("ok") else 1
+
+
+
+
+# --------------------------------------------------------------------------
+# Composite distinctness (correction cycle 1, §6). A single greyscale 8x8
+# average hash cannot separate four differently-coloured night buildings, so
+# distinctness combines luminance structure, colour distribution and silhouette.
+# --------------------------------------------------------------------------
+
+THRESHOLD_VERSION = "1.1.0"
+
+
+def _dhash_bits(im: Image.Image, size: int = 8) -> str:
+    g = im.convert("L").resize((size + 1, size), Image.LANCZOS)
+    px = list(g.getdata())
+    bits = []
+    for r in range(size):
+        row = px[r * (size + 1):(r + 1) * (size + 1)]
+        bits += ["1" if row[c] > row[c + 1] else "0" for c in range(size)]
+    return "".join(bits)
+
+
+def _ahash_bits(im: Image.Image, size: int = 8) -> str:
+    g = im.convert("L").resize((size, size), Image.LANCZOS)
+    px = list(g.getdata())
+    avg = sum(px) / len(px)
+    return "".join("1" if v > avg else "0" for v in px)
+
+
+def _hamming(a: str, b: str) -> int:
+    return sum(1 for x, y in zip(a, b) if x != y) + abs(len(a) - len(b))
+
+
+def _colour_hist(im: Image.Image, bins: int = 4) -> list[float]:
+    """Normalised coarse RGB histogram — captures art-direction/colour family."""
+    rgb = im.convert("RGB").resize((64, 64), Image.LANCZOS)
+    hist = [0.0] * (bins ** 3)
+    step = 256 // bins
+    for r, g, b in rgb.getdata():
+        hist[(r // step) * bins * bins + (g // step) * bins + (b // step)] += 1
+    total = sum(hist) or 1
+    return [h / total for h in hist]
+
+
+def _hist_distance(a: list[float], b: list[float]) -> float:
+    """Total-variation distance in [0,1]."""
+    return sum(abs(x - y) for x, y in zip(a, b)) / 2
+
+
+def _silhouette(im: Image.Image, size: int = 16) -> list[int]:
+    bb = _content_bbox(im)
+    src = im.crop(bb) if bb else im
+    if src.mode in ("RGBA", "LA"):
+        mask = src.getchannel("A").resize((size, size), Image.LANCZOS)
+    else:
+        from PIL import ImageChops
+        rgb = src.convert("RGB")
+        w, h = rgb.size
+        border = [rgb.getpixel((x, 0)) for x in range(0, w, max(1, w // 20))]
+        bg = tuple(sorted(c)[len(c) // 2] for c in zip(*border))
+        mask = ImageChops.difference(rgb, Image.new("RGB", rgb.size, bg)).convert("L").resize((size, size), Image.LANCZOS)
+    return [1 if v > 40 else 0 for v in mask.getdata()]
+
+
+def _silhouette_distance(a: list[int], b: list[int]) -> float:
+    if not a or not b:
+        return 1.0
+    diff = sum(1 for x, y in zip(a, b) if x != y)
+    return diff / len(a)
+
+
+def op_distinct(a) -> dict:
+    """Compare two images with a composite, colour-aware metric."""
+    pa, pb = Path(a.a), Path(a.b)
+    sa, sb = _sha256(pa), _sha256(pb)
+    ia, ib = _open(pa), _open(pb)
+
+    structure = _hamming(_dhash_bits(ia), _dhash_bits(ib)) / 64.0
+    ahash_d = _hamming(_ahash_bits(ia), _ahash_bits(ib)) / 64.0
+    colour = _hist_distance(_colour_hist(ia), _colour_hist(ib))
+    silhouette = _silhouette_distance(_silhouette(ia), _silhouette(ib))
+
+    composite = round(0.4 * structure + 0.35 * colour + 0.25 * silhouette, 4)
+    binary_identical = sa == sb
+
+    if binary_identical:
+        cls = "DUPLICATE"
+    elif composite < 0.08:
+        cls = "TOO_SIMILAR"
+    elif composite < 0.18:
+        cls = "ACCEPTABLE"
+    else:
+        cls = "DISTINCT"
+
+    return {
+        "ok": True, "assetA": str(pa), "assetB": str(pb),
+        "binaryIdentical": binary_identical,
+        "structureDifference": round(structure, 4),
+        "averageHashDifference": round(ahash_d, 4),
+        "colourDifference": round(colour, 4),
+        "silhouetteDifference": round(silhouette, 4),
+        "compositeDistinctness": composite,
+        "classification": cls,
+        "thresholdVersion": THRESHOLD_VERSION,
+        "evidence": [
+            f"dhash structure {structure:.3f}", f"ahash {ahash_d:.3f}",
+            f"colour TV {colour:.3f}", f"silhouette {silhouette:.3f}",
+        ],
+    }
+
+
+def op_contain(a) -> dict:
+    """Contain-fit with enforced padding so the subject is never cropped (§7)."""
+    src, out = Path(a.src), Path(a.out)
+    im = _open(src).convert("RGBA")
+    bb = _content_bbox(im)
+    if not bb:
+        return {"ok": False, "error": "no foreground detected — cannot assert crop status", "needsReview": True}
+    subject = im.crop(bb)
+
+    tw, th = a.width, a.height
+    pad_b, pad_x, pad_t = th * a.bottom_pct / 100, tw * a.side_pct / 100, th * a.top_pct / 100
+    avail_w, avail_h = tw - 2 * pad_x, th - pad_t - pad_b
+    ratio = min(avail_w / subject.width, avail_h / subject.height)
+    new = subject.resize((max(1, int(subject.width * ratio)), max(1, int(subject.height * ratio))), Image.LANCZOS)
+
+    canvas = Image.new("RGBA", (tw, th), (0, 0, 0, 0) if a.alpha else (11, 20, 36, 255))
+    if not a.alpha:
+        # keep the generated night sky as the backdrop rather than a flat fill
+        bg = _open(src).convert("RGBA").resize((tw, th), Image.LANCZOS)
+        canvas.paste(bg, (0, 0))
+    x = (tw - new.width) // 2
+    y = int(th - pad_b - new.height)
+    canvas.paste(new, (x, y), new)
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(out.suffix + ".tmp")
+    canvas.convert("RGBA" if a.alpha else "RGB").save(tmp, "WEBP", quality=92, lossless=bool(a.alpha), method=6)
+    tmp.replace(out)
+
+    v = _open(out)
+    vb = _content_bbox(v)
+    return {
+        "ok": True, "path": str(out), "width": v.width, "height": v.height,
+        "sha256": _sha256(out),
+        "bottomGapPct": round((v.height - vb[3]) / v.height * 100, 3) if vb else None,
+        "placedBottomPaddingPx": int(pad_b),
+    }
 
 
 if __name__ == "__main__":
