@@ -16,16 +16,33 @@ that are **inherent to Vercel** (serverless):
 1. **Create a Postgres** (e.g. https://neon.tech, free). Copy the connection
    string (looks like `postgresql://user:pass@host/db?sslmode=require`).
 
-2. **Import the repo in Vercel** → https://vercel.com/new → pick
+   > Neon gives you **two** connection strings — grab both:
+   > - **Pooled** (`...-pooler...`) → use for the app at runtime (`DATABASE_URL`).
+   > - **Direct** (no `-pooler`) → use for migrations. **Prisma migrations do NOT
+   >   work over the pooled URL** (PgBouncer has no advisory locks — the build
+   >   hangs at "1 migration found"). This is why migrations run from your
+   >   machine, not in the Vercel build.
+
+2. **Apply the schema + seed once from your machine** using the **DIRECT** URL:
+   ```bash
+   cd apps/web
+   DATABASE_URL="<neon-DIRECT-url>" npx prisma migrate deploy
+   DATABASE_URL="<neon-DIRECT-url>" npm run db:seed
+   ```
+   Login later with `owner@demo.local` / `demo1234` (change it).
+
+3. **Import the repo in Vercel** → https://vercel.com/new → pick
    `mogohm/AI-Agent-Officesss`.
    - **Root Directory:** `apps/web`  ← important (monorepo)
    - Framework preset: **Next.js** (auto-detected)
 
-3. **Set Environment Variables** (Project → Settings → Environment Variables):
+4. **Set Environment Variables** (Project → Settings → Environment Variables).
+   All of these must be set **before** the build — `next build` fails fast if
+   `AUTH_SECRET` / `CREDENTIAL_ENCRYPTION_KEY` / `DATABASE_URL` are missing:
 
    | Key | Value |
    | --- | --- |
-   | `DATABASE_URL` | your Neon connection string |
+   | `DATABASE_URL` | your Neon **pooled** connection string |
    | `AUTH_SECRET` | generate: `openssl rand -base64 32` |
    | `CREDENTIAL_ENCRYPTION_KEY` | generate: `openssl rand -base64 32` |
    | `AUTH_TRUST_HOST` | `true` |
@@ -33,15 +50,8 @@ that are **inherent to Vercel** (serverless):
 
    (Do **not** reuse the local `.env` secrets — generate fresh ones.)
 
-4. **Deploy.** The build runs `prisma generate && prisma migrate deploy &&
-   next build`, so the schema is created automatically on first deploy.
-
-5. **Seed demo data** (one time) from your machine, pointed at the cloud DB:
-   ```bash
-   cd apps/web
-   DATABASE_URL="<your-neon-url>" npm run db:seed
-   ```
-   Login: `owner@demo.local` / `demo1234` (change it).
+5. **Deploy.** The build runs `prisma generate && next build` (no migrations —
+   you already applied them in step 2).
 
 6. *(Optional) Enable real task execution* — run the worker on a process host:
    - Railway/Render: new service from this repo, root `apps/web`,
