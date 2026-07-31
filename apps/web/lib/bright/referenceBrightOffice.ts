@@ -36,33 +36,31 @@ const one = (dept: string, prefix: string, label: string, seat: BrightSeat,
   { id: prefix, label, dir: `${CH}/${dept}`, prefix, seat, states, initial },
 ];
 
+// Reference office floors (COMPANY A): Marketing / Sales / HR / IT-Dev /
+// Design·Meeting / Lobby·Support. Each entry keeps its Bright floor MODULE
+// (`key`) and worker sprites; only the DB `type`, display `label`, Thai
+// subtitle and accent colour are mapped to the reference.
 export const BRIGHT_DEPTS: BrightDept[] = [
   {
-    type: "Marketing", key: "growth", floorNumber: 6, label: "GROWTH", th: "แผนกการตลาด / เติบโต", color: "#D98A3D",
+    type: "Marketing", key: "marketing", floorNumber: 6, label: "MARKETING", th: "แผนกการตลาด", color: "#7B5BD6",
     floor: `${FL}/growth-floor.webp`, focal: "50% 58%",
-    workers: one("growth", "growth-strategist", "Growth Strategist", { x: 46, y: 96, s: 0.56, z: 3 },
+    workers: one("growth", "growth-strategist", "Marketing Lead", { x: 46, y: 96, s: 0.56, z: 3 },
       { work: ["analysing"], review: "analysing", idle: ["idle", "coffee"] }, "analysing"),
   },
   {
-    type: "QA / Tester", key: "quality", floorNumber: 5, label: "QUALITY", th: "แผนกคุณภาพ", color: "#2F9BB0",
+    type: "Sales", key: "sales", floorNumber: 5, label: "SALES", th: "แผนกขาย", color: "#2E7BC4",
+    floor: `${FL}/product-management-floor.webp`, focal: "50% 55%",
+    workers: one("product-management", "product-manager", "Sales Lead", { x: 34, y: 96, s: 0.56, z: 3 },
+      { work: ["planning"], review: "planning", idle: ["idle", "coffee"] }, "planning"),
+  },
+  {
+    type: "HR", key: "hr", floorNumber: 4, label: "HR", th: "แผนกบุคคล", color: "#C94F6E",
     floor: `${FL}/quality-floor.webp`, focal: "50% 58%",
-    workers: one("quality", "qa-engineer", "QA Engineer", { x: 52, y: 96, s: 0.56, z: 3 },
-      { work: ["testing"], review: "reviewing", idle: ["idle", "reviewing"] }, "testing"),
+    workers: one("quality", "qa-engineer", "HR Officer", { x: 52, y: 96, s: 0.56, z: 3 },
+      { work: ["testing"], review: "reviewing", idle: ["idle", "reviewing"] }, "reviewing"),
   },
   {
-    type: "Game Studio", key: "game-studio", floorNumber: 4, label: "GAME STUDIO", th: "เกมสตูดิโอ", color: "#D9A73D",
-    floor: `${FL}/game-studio-floor.webp`, focal: "50% 58%",
-    workers: one("game-studio", "game-designer", "Game Designer", { x: 44, y: 96, s: 0.56, z: 3 },
-      { work: ["designing"], review: "playtesting", idle: ["idle", "playtesting"] }, "playtesting"),
-  },
-  {
-    type: "Design", key: "art-design", floorNumber: 3, label: "ART & DESIGN", th: "แผนกออกแบบ", color: "#C75FA4",
-    floor: `${FL}/art-design-floor.webp`, focal: "50% 58%",
-    workers: one("art-design", "visual-designer", "Visual Designer", { x: 40, y: 96, s: 0.56, z: 3 },
-      { work: ["designing"], review: "sketching", idle: ["idle", "sketching"] }, "designing"),
-  },
-  {
-    type: "IT / Dev", key: "engineering", floorNumber: 2, label: "ENGINEERING", th: "แผนกวิศวกรรม", color: "#2E7BC4",
+    type: "IT / Dev", key: "it-dev", floorNumber: 3, label: "IT / DEV", th: "แผนกไอที / พัฒนา", color: "#2F9BB0",
     floor: `${FL}/engineering-floor.webp`, focal: "50% 62%",
     workers: [
       { id: "frontend-developer", label: "Frontend Developer", dir: `${CH}/engineering`, prefix: "frontend-developer",
@@ -77,10 +75,16 @@ export const BRIGHT_DEPTS: BrightDept[] = [
     ],
   },
   {
-    type: "Product Management", key: "product-management", floorNumber: 1, label: "PRODUCT MGMT", th: "แผนกผลิตภัณฑ์", color: "#7B5BD6",
-    floor: `${FL}/product-management-floor.webp`, focal: "50% 55%",
-    workers: one("product-management", "product-manager", "Product Manager", { x: 34, y: 96, s: 0.56, z: 3 },
-      { work: ["planning"], review: "planning", idle: ["idle", "coffee"] }, "planning"),
+    type: "Design", key: "design", floorNumber: 2, label: "DESIGN / MEETING", th: "แผนกออกแบบ / ประชุม", color: "#D98A3D",
+    floor: `${FL}/art-design-floor.webp`, focal: "50% 58%",
+    workers: one("art-design", "visual-designer", "Designer", { x: 40, y: 96, s: 0.56, z: 3 },
+      { work: ["designing"], review: "sketching", idle: ["idle", "sketching"] }, "designing"),
+  },
+  {
+    type: "Lobby / Support", key: "lobby", floorNumber: 1, label: "LOBBY / SUPPORT", th: "แผนกต้อนรับ / ซัพพอร์ต", color: "#3E9E5F",
+    floor: `${FL}/game-studio-floor.webp`, focal: "50% 58%",
+    workers: one("game-studio", "game-designer", "Support Lead", { x: 44, y: 96, s: 0.56, z: 3 },
+      { work: ["designing"], review: "playtesting", idle: ["idle", "playtesting"] }, "idle"),
   },
 ];
 

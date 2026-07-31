@@ -1,0 +1,12 @@
+# Reverse proxy for the AI Agent Office web app.
+# For a real domain + automatic HTTPS, replace `:80` with your domain name
+# (e.g. `app.example.com`) and Caddy will provision a certificate.
+:80 {
+	encode gzip
+	reverse_proxy web:3000
+	header {
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}

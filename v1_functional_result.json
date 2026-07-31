@@ -1,0 +1,188 @@
+[
+  [
+    "COMPANY",
+    "company cards use real data",
+    "PASS",
+    "3 companies from API"
+  ],
+  [
+    "COMPANY",
+    "selected company updates center header",
+    "PASS",
+    "บริษัทที่เลือก: AI Game Studio"
+  ],
+  [
+    "COMPANY",
+    "add company button behavior (opens modal)",
+    "PASS",
+    ""
+  ],
+  [
+    "COMPANY",
+    "select/open company switches",
+    "PASS",
+    "บริษัทที่เลือก: AI Game Studio -> บริษัทที่เลือก: Neon Labs"
+  ],
+  [
+    "DEPARTMENT",
+    "department list (right panel) real data",
+    "PASS",
+    "6 depts"
+  ],
+  [
+    "DEPARTMENT",
+    "floor click selects dept + JD updates",
+    "PASS",
+    "JD floor6 matches=2"
+  ],
+  [
+    "DEPARTMENT",
+    "select department from right panel",
+    "PASS",
+    "right-panel dept buttons present"
+  ],
+  [
+    "DEPARTMENT",
+    "add department button",
+    "PASS",
+    ""
+  ],
+  [
+    "DEPARTMENT",
+    "edit department control",
+    "PASS",
+    ""
+  ],
+  [
+    "DEPARTMENT",
+    "delete department control",
+    "PASS",
+    ""
+  ],
+  [
+    "DEPARTMENT",
+    "job description editor + save",
+    "PASS",
+    ""
+  ],
+  [
+    "PROJECT",
+    "project cards display real data",
+    "PASS",
+    "5 projects"
+  ],
+  [
+    "PROJECT",
+    "project status chips display",
+    "PASS",
+    ""
+  ],
+  [
+    "PROJECT",
+    "create project button",
+    "PASS",
+    ""
+  ],
+  [
+    "PROJECT",
+    "project open/select navigates",
+    "PASS",
+    "project detail route /projects/[id] exists"
+  ],
+  [
+    "AI MODEL",
+    "model list displays",
+    "PASS",
+    ""
+  ],
+  [
+    "AI MODEL",
+    "providers visible (GPT/Claude/Gemini/Local/Image)",
+    "PASS",
+    ""
+  ],
+  [
+    "AI MODEL",
+    "AI recommendation displays",
+    "PASS",
+    ""
+  ],
+  [
+    "AGENTS",
+    "no broken sprite/asset paths",
+    "PASS",
+    "broken=[]"
+  ],
+  [
+    "AGENTS",
+    "agents present or graceful when none",
+    "PASS",
+    "8 agents (company1)"
+  ],
+  [
+    "AGENTS",
+    "bottom storyboard shows states",
+    "PASS",
+    ""
+  ],
+  [
+    "VPS",
+    "VPS panel displays",
+    "PASS",
+    ""
+  ],
+  [
+    "VPS",
+    "VPS mock/demo labeled",
+    "PASS",
+    "labeled mock/demo"
+  ],
+  [
+    "VPS",
+    "B1 click routes to /vps",
+    "PASS",
+    "http://localhost:3000/vps"
+  ],
+  [
+    "NAV/EDGE",
+    "/companies/1 renders (ok)",
+    "PASS",
+    "towerImgs=8"
+  ],
+  [
+    "NAV/EDGE",
+    "/companies/2 renders (ok)",
+    "PASS",
+    "towerImgs=5"
+  ],
+  [
+    "NAV/EDGE",
+    "/companies/3 renders (empty-ok)",
+    "PASS",
+    "towerImgs=2"
+  ],
+  [
+    "NAV/EDGE",
+    "/companies/999999 invalid handled safely",
+    "PASS",
+    ""
+  ],
+  [
+    "NAV/EDGE",
+    "browser refresh keeps modular default",
+    "PASS",
+    ""
+  ],
+  [
+    "QUALITY",
+    "0 console errors (all routes)",
+    "PASS",
+    "errs=[]"
+  ],
+  [
+    "QUALITY",
+    "0 failed/5xx requests",
+    "FAIL",
+    "failed=['http://localhost:3000/vps?_rsc=36pfg']"
+  ]
+]

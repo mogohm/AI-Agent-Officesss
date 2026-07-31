@@ -1,0 +1,32 @@
+{
+  "task_id": "reference-tower-top",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "ai-office-tower-top-half.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Reference master tower \u2014 top half",
+  "prompt_suffix": "The FIRST reference image is the exact structure to reproduce for this top half: rooftop garden + three floors (purple marketing, blue sales with world map, pink HR). Keep its corner-forward isometric angle and width. End at a flat floor slab. Fully transparent background, no text or UI.",
+  "reference_images": [
+    "outputs/reference-match/_ref_top_guide.png",
+    "references/ai-agent-office-reference.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/ai-office-tower-top-half.webp",
+  "source_output_path": "outputs/source/reference-tower-top-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "reference-master-tower",
+    "theme": "reference-bright",
+    "asset_role": "tower_half_top"
+  },
+  "updated_at": "2026-07-20T03:33:51.855949+00:00",
+  "error_message": null
+}

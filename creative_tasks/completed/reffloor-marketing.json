@@ -1,0 +1,30 @@
+{
+  "task_id": "reffloor-marketing",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "marketing-floor-module-ref",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Ref floor \u2014 marketing",
+  "prompt_suffix": "",
+  "reference_images": [
+    "references/style-lock/ref-floor-guides/marketing.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/modules/marketing-floor-module-ref.webp",
+  "source_output_path": "outputs/source/ref-floors/marketing-floor-module-ref-source.png",
+  "expected_width": 1536,
+  "expected_height": 1024,
+  "aspect_ratio": "3:2",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "ref-floor-modules",
+    "dept": "marketing"
+  },
+  "updated_at": "2026-07-16T16:02:32.431907+00:00",
+  "error_message": null
+}

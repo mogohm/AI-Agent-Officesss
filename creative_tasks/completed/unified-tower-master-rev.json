@@ -1,0 +1,35 @@
+{
+  "task_id": "asset-unified-tower-master-rev",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "ai-office-tower-master.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Unified tower master revision",
+  "prompt_suffix": "",
+  "reference_images": [
+    "references/style-lock/reference-tower-clean-crop.png",
+    "outputs/source/ai-office-tower-master-v1-source.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/ai-office-tower-master.webp",
+  "source_output_path": "outputs/source/ai-office-tower-master-source.png",
+  "expected_width": 1024,
+  "expected_height": 1408,
+  "aspect_ratio": "0.727",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "transparency_status": "pending_cleanup",
+  "visual_lab_url": null,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "tower-master",
+    "asset_role": "unified_tower_master",
+    "revision_of": "asset-unified-tower-master",
+    "fix": "force exactly 6 floors + B1"
+  },
+  "updated_at": "2026-07-13T12:29:05.328500+00:00",
+  "error_message": null
+}

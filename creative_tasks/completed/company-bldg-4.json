@@ -1,0 +1,29 @@
+{
+  "task_id": "company-bldg-4",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "building-4",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Company building thumbnail",
+  "prompt_suffix": "Facade accent color: deep blue and steel, cool blue lit windows.",
+  "reference_images": [
+    "references/style-lock/buildings/ref-bldg-d.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/companies/building-4.webp",
+  "source_output_path": "outputs/source/companies/building-4-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": false,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "company-buildings"
+  },
+  "updated_at": "2026-07-14T21:04:43.112322+00:00",
+  "error_message": null
+}

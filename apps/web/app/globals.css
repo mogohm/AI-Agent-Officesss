@@ -3,57 +3,92 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+  --bg: #07111f;
+  --sidebar: #091426;
+  --panel: #0e1b2d;
+  --panel-2: #12233a;
+  --border: #244768;
+  --blue: #3478f6;
+  --cyan: #3abef9;
+  --green: #35d07f;
+  --amber: #f0b84b;
+  --purple: #9b6cf6;
+  --red: #ef5b69;
+  --text: #f4f7fb;
+  --text-2: #9db1c8;
+  --text-3: #657a91;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
-  color: #18335a;
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  color: var(--text);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, "Noto Sans Thai", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Bright sky-blue page with soft light washes */
 body {
   background:
-    radial-gradient(1100px 640px at 82% -12%, rgba(47, 102, 179, 0.10), transparent),
-    radial-gradient(900px 560px at -5% 110%, rgba(122, 90, 209, 0.08), transparent),
-    linear-gradient(180deg, #eef5ff 0%, #e6f0fe 60%, #eaf3ff 100%);
+    radial-gradient(1200px 700px at 82% -14%, rgba(52, 120, 246, 0.10), transparent),
+    radial-gradient(1000px 620px at -6% 112%, rgba(155, 108, 246, 0.08), transparent),
+    var(--bg);
   min-height: 100vh;
 }
 
-.pixelated { image-rendering: pixelated; }
-.font-pixel { letter-spacing: 0.02em; }
-.neon-text { text-shadow: none; }
-
-/* Light sky strip for building rooftops / card headers */
-.skyline {
-  background: linear-gradient(180deg, #cfe2fb 0%, #eaf3ff 100%);
+/* Pixel-art rendering for all game assets */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
-/* Window-grid used inside floor fallbacks (kept subtle, on dark art) */
-.window-grid {
-  background-image:
-    linear-gradient(rgba(255, 207, 122, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 207, 122, 0.12) 1px, transparent 1px);
-  background-size: 16px 16px;
+.font-pixel { letter-spacing: 0.03em; }
+
+/* Command-center panel: subtle blue-tinted border + faint inner glow, no heavy shadow */
+.cc-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgba(58, 190, 249, 0.05), 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(3px);
+/* Isometric office room: dark floor slab behind a transparent floor-module sprite */
+.office-room {
+  background:
+    radial-gradient(120% 80% at 50% 12%, rgba(58, 190, 249, 0.06), transparent 60%),
+    linear-gradient(180deg, #0c1a2c 0%, #0a1626 55%, #081120 100%);
 }
 
-.iso-tilt { transform: perspective(900px) rotateX(3deg); }
+/* Server / infrastructure floor pattern */
+.server-floor {
+  background:
+    repeating-linear-gradient(90deg, rgba(58, 190, 249, 0.10) 0 2px, transparent 2px 22px),
+    repeating-linear-gradient(0deg, rgba(52, 120, 246, 0.08) 0 2px, transparent 2px 16px),
+    linear-gradient(180deg, #0a1526, #060d18);
+}
 
-/* Thin light scrollbars */
+/* Slim dark scrollbars */
 .scroll-slim::-webkit-scrollbar { width: 9px; height: 9px; }
-.scroll-slim::-webkit-scrollbar-thumb { background: #c7d6ea; border-radius: 999px; }
+.scroll-slim::-webkit-scrollbar-thumb { background: #1c3251; border-radius: 999px; }
+.scroll-slim::-webkit-scrollbar-thumb:hover { background: #29466c; }
 .scroll-slim::-webkit-scrollbar-track { background: transparent; }
 
-/* Soft card shell */
-.panel {
-  box-shadow: 0 6px 20px rgba(24, 51, 90, 0.10);
+/* Worker status glows */
+.glow-working { filter: drop-shadow(0 0 6px rgba(52, 120, 246, 0.7)); }
+.glow-thinking { filter: drop-shadow(0 0 6px rgba(240, 184, 75, 0.7)); }
+.glow-waiting { filter: drop-shadow(0 0 6px rgba(155, 108, 246, 0.7)); }
+.glow-error { filter: drop-shadow(0 0 6px rgba(239, 91, 105, 0.8)); }
+
+/* Lightweight, reduced-motion-aware animations */
+@keyframes worker-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes soft-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@keyframes error-blink { 0%, 70%, 100% { opacity: 1; } 85% { opacity: 0.3; } }
+
+.anim-working { animation: worker-bob 2.2s ease-in-out infinite; }
+.anim-thinking { animation: soft-pulse 2.4s ease-in-out infinite; }
+.anim-waiting { animation: soft-pulse 2s ease-in-out infinite; }
+.anim-error { animation: error-blink 1.6s steps(1, end) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-working, .anim-thinking, .anim-waiting, .anim-error { animation: none; }
 }

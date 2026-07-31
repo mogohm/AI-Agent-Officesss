@@ -97,6 +97,8 @@ export interface Project {
   github_repo_url: string;
   vps_status: string;
   progress: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Task {

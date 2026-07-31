@@ -1,0 +1,31 @@
+{
+  "task_id": "master-chibi-navy",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "chibi-navy.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Reference master chibi worker",
+  "prompt_suffix": "The worker wears a navy-blue shirt. Single character, facing right, walking. Fully transparent background, nothing else in frame. Must match the chibi people in the office-tower reference image.",
+  "reference_images": [
+    "outputs/reference-match/_ref_top_guide.png",
+    "apps/web/public/assets/themes/reference-bright/tower-master/ai-office-tower-top-half.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/chibi/chibi-navy.webp",
+  "source_output_path": "outputs/source/master-chibi-navy-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "master-chibi",
+    "theme": "reference-bright"
+  },
+  "updated_at": "2026-07-20T06:12:59.196805+00:00",
+  "error_message": null
+}

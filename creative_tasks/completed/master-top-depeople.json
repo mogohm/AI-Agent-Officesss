@@ -1,0 +1,30 @@
+{
+  "task_id": "master-top-depeople",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "_empty_top_crop.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Reference master tower \u2014 depeople",
+  "prompt_suffix": "This is a CROPPED SECTION of the office building. Reproduce it EXACTLY as-is \u2014 same rooms, walls, furniture, desks, empty chairs, plants, floors, cut edges \u2014 and ONLY remove every person/human. Do NOT add, complete, or invent any new floor, wall, or structure beyond what is shown. Keep the exact same crop framing and building outline. Transparent background, no people, no text.",
+  "reference_images": [
+    "outputs/reference-match/_master_top_crop.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/_empty_top_crop.webp",
+  "source_output_path": "outputs/source/master-top-depeople-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "master-crop-depeople",
+    "theme": "reference-bright"
+  },
+  "updated_at": "2026-07-20T07:22:13.185785+00:00",
+  "error_message": null
+}

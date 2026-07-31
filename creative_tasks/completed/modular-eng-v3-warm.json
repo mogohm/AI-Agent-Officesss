@@ -1,0 +1,30 @@
+{
+  "task_id": "modular-eng-v3-warm",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "engineering-floor-module-v3",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Modular tower v3 warm \u2014 engineering floor",
+  "prompt_suffix": "",
+  "reference_images": [
+    "references/style-lock/modules-v3/guide-c.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/modules/engineering-floor-module-v3.webp",
+  "source_output_path": "outputs/source/modular-v3/engineering-floor-module-v3-warm-source.png",
+  "expected_width": 1536,
+  "expected_height": 1024,
+  "aspect_ratio": "3:2",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "modular-v3-warm-revision",
+    "module": "engineering-floor-module-v3"
+  },
+  "updated_at": "2026-07-14T19:59:21.156241+00:00",
+  "error_message": null
+}

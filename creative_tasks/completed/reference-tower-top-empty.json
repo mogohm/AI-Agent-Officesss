@@ -1,0 +1,30 @@
+{
+  "task_id": "reference-tower-top-empty",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "ai-office-tower-top-half-empty.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Reference master tower \u2014 top half empty",
+  "prompt_suffix": "Reproduce the reference room exactly but with ALL people removed \u2014 empty furnished rooms only.",
+  "reference_images": [
+    "apps/web/public/assets/themes/reference-bright/tower-master/ai-office-tower-top-half.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/ai-office-tower-top-half-empty.webp",
+  "source_output_path": "outputs/source/reference-tower-top-empty-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "reference-master-empty",
+    "theme": "reference-bright"
+  },
+  "updated_at": "2026-07-20T06:01:02.701376+00:00",
+  "error_message": null
+}

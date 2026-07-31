@@ -10,41 +10,41 @@ from __future__ import annotations
 RECOMMENDATION_RULES: dict[str, dict] = {
     "IT / Dev": {
         "providers": ["anthropic", "openai", "local"],
-        "reason": "Good for coding, architecture, and debugging.",
+        "reason": "แนะนำใช้ GPT / Claude สำหรับวิเคราะห์และเขียนโค้ด ร่วมกับ Local LLM สำหรับงานภายใน",
     },
     "Design": {
         "providers": ["image", "openai"],
-        "reason": "Good for concept art, UI ideas, and prompt writing.",
+        "reason": "เหมาะกับงานคอนเซ็ปต์อาร์ต ออกแบบ UI และเขียนพรอมป์ต",
     },
     "Marketing": {
         "providers": ["openai", "google"],
-        "reason": "Good for campaign planning and audience analysis.",
+        "reason": "เหมาะกับการวางแผนแคมเปญและวิเคราะห์กลุ่มเป้าหมาย",
     },
     "Sales": {
         "providers": ["openai"],
-        "reason": "Good for customer follow-up and sales scripts.",
+        "reason": "เหมาะกับการติดตามลูกค้าและเขียนสคริปต์การขาย",
     },
     "HR": {
         "providers": ["anthropic", "openai"],
-        "reason": "Good for resume review and interview question generation.",
+        "reason": "เหมาะกับการคัดกรองเรซูเม่และตั้งคำถามสัมภาษณ์",
     },
     "QA / Tester": {
         "providers": ["anthropic", "openai"],
-        "reason": "Good for checklists, bug analysis, and test cases.",
+        "reason": "เหมาะกับการทำเช็กลิสต์ วิเคราะห์บั๊ก และเขียนเทสต์เคส",
     },
     "Data / Research": {
         "providers": ["google", "anthropic", "openai"],
-        "reason": "Good for research and summarization.",
+        "reason": "เหมาะกับงานวิจัยและสรุปข้อมูล",
     },
     "Game Studio": {
         "providers": ["openai", "anthropic", "image"],
-        "reason": "Good for game design, gameplay, economy, and assets.",
+        "reason": "เหมาะกับการออกแบบเกม เกมเพลย์ ระบบเศรษฐกิจ และแอสเซ็ต",
     },
 }
 
 DEFAULT_RECOMMENDATION = {
     "providers": ["openai", "anthropic"],
-    "reason": "General-purpose assistants that fit most tasks.",
+    "reason": "ผู้ช่วยอเนกประสงค์ที่เหมาะกับงานทั่วไป",
 }
 
 

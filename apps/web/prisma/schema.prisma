@@ -1,0 +1,671 @@
+// AI Agent Office — Prisma schema (PostgreSQL).
+// Source of truth for the application. Money = Decimal, soft-delete = archivedAt,
+// runtime vs business status kept separate, join tables (no id-array columns).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth & users
+// ---------------------------------------------------------------------------
+
+enum GlobalRole {
+  SUPER_ADMIN
+  USER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?
+  image         String?
+  globalRole    GlobalRole @default(USER)
+  emailVerified DateTime?
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  memberships     CompanyMember[]
+  accounts        Account[]
+  sessions        Session[]
+  createdProjects Project[]        @relation("ProjectCreatedBy")
+  createdTasks    AgentTask[]      @relation("TaskCreatedBy")
+  approvalsMade   Approval[]       @relation("ApprovalDecidedBy")
+  approvalsAssigned Approval[]     @relation("ApprovalAssignedTo")
+  activityLogs    ActivityLog[]
+  documents       KnowledgeDocument[]
+}
+
+// Auth.js (NextAuth v5) adapter models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+enum CompanyRole {
+  OWNER
+  ADMIN
+  MANAGER
+  OPERATOR
+  REVIEWER
+  VIEWER
+}
+
+model CompanyMember {
+  id        String      @id @default(cuid())
+  companyId String
+  userId    String
+  role      CompanyRole @default(VIEWER)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Company
+// ---------------------------------------------------------------------------
+
+enum CompanyStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+model Company {
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  legalName    String?
+  description  String?
+  logoUrl      String?
+  themeKey     String        @default("navy")
+  timezone     String        @default("UTC")
+  currency     String        @default("USD")
+  status       CompanyStatus @default(ACTIVE)
+  monthlyBudget Decimal?     @db.Decimal(12, 2)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  archivedAt   DateTime?
+
+  members             CompanyMember[]
+  departments         Department[]
+  workers             AIWorker[]
+  projects            Project[]
+  tasks               AgentTask[]
+  approvals           Approval[]
+  providerConnections ProviderConnection[]
+  usageRecords        UsageRecord[]
+  activityLogs        ActivityLog[]
+  documents           KnowledgeDocument[]
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Department
+// ---------------------------------------------------------------------------
+
+enum DepartmentStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum FloorType {
+  OFFICE
+  DEVELOPMENT
+  CREATIVE
+  MARKETING
+  SALES
+  MANAGEMENT
+  MEETING
+  SUPPORT
+  SERVER
+  CUSTOM
+}
+
+model Department {
+  id                String           @id @default(cuid())
+  companyId         String
+  name              String
+  slug              String
+  description       String?
+  floorOrder        Int
+  floorType         FloorType        @default(OFFICE)
+  status            DepartmentStatus @default(ACTIVE)
+  defaultProviderId String?
+  defaultModelId    String?
+  monthlyBudget     Decimal?         @db.Decimal(12, 2)
+  systemInstruction String?          @db.Text
+  themeColor        String           @default("#3E70C9")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  archivedAt        DateTime?
+
+  company        Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  defaultProvider ProviderConnection? @relation(fields: [defaultProviderId], references: [id])
+  workers        AIWorker[]
+  tasks          AgentTask[]
+  projectLinks   ProjectDepartment[]
+  usageRecords   UsageRecord[]
+  documents      KnowledgeDocument[]
+
+  @@unique([companyId, slug])
+  @@unique([companyId, floorOrder])
+  @@index([companyId, status])
+}
+
+// ---------------------------------------------------------------------------
+// AI Worker
+// ---------------------------------------------------------------------------
+
+enum WorkerStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum WorkerRuntimeStatus {
+  OFFLINE
+  IDLE
+  QUEUED
+  THINKING
+  WORKING
+  WAITING_APPROVAL
+  COMPLETED
+  ERROR
+}
+
+model AIWorker {
+  id                     String              @id @default(cuid())
+  companyId              String
+  departmentId           String?
+  name                   String
+  slug                   String
+  role                   String              @default("Developer")
+  description            String?
+  avatarKey              String              @default("dev-a")
+  providerConnectionId   String?
+  modelId                String?
+  systemPrompt           String?             @db.Text
+  skills                 String[]
+  toolPermissions        String[]
+  status                 WorkerStatus        @default(ACTIVE)
+  runtimeStatus          WorkerRuntimeStatus @default(OFFLINE)
+  monthlyBudget          Decimal?            @db.Decimal(12, 2)
+  currentMonthCost       Decimal             @default(0) @db.Decimal(12, 4)
+  temperature            Float               @default(0.7)
+  maxOutputTokens        Int                 @default(4096)
+  maxExecutionSeconds    Int                 @default(120)
+  requiresDefaultApproval Boolean            @default(false)
+  seatX                  Int                 @default(0)
+  seatY                  Int                 @default(0)
+  lastActiveAt           DateTime?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  archivedAt             DateTime?
+
+  company            Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  department         Department?         @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  providerConnection ProviderConnection? @relation(fields: [providerConnectionId], references: [id])
+  tasks              AgentTask[]
+  taskRuns           TaskRun[]
+  projectLinks       ProjectWorker[]
+  usageRecords       UsageRecord[]
+  approvalsRequested Approval[]          @relation("ApprovalRequestedBy")
+  activityLogs       ActivityLog[]
+  heartbeats         WorkerHeartbeat[]
+
+  @@unique([companyId, slug])
+  @@index([companyId, status])
+  @@index([departmentId])
+}
+
+// ---------------------------------------------------------------------------
+// Project
+// ---------------------------------------------------------------------------
+
+enum ProjectStatus {
+  DRAFT
+  PLANNING
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Project {
+  id            String          @id @default(cuid())
+  companyId     String
+  name          String
+  slug          String
+  description   String?
+  status        ProjectStatus   @default(DRAFT)
+  priority      ProjectPriority @default(MEDIUM)
+  startDate     DateTime?
+  targetDate    DateTime?
+  completedAt   DateTime?
+  monthlyBudget Decimal?        @db.Decimal(12, 2)
+  progress      Int             @default(0)
+  createdById   String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  archivedAt    DateTime?
+
+  company         Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy       User?               @relation("ProjectCreatedBy", fields: [createdById], references: [id])
+  departmentLinks ProjectDepartment[]
+  workerLinks     ProjectWorker[]
+  tasks           AgentTask[]
+  usageRecords    UsageRecord[]
+  documents       KnowledgeDocument[]
+
+  @@unique([companyId, slug])
+  @@index([companyId, status])
+  @@index([companyId, priority])
+}
+
+model ProjectDepartment {
+  projectId    String
+  departmentId String
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, departmentId])
+}
+
+model ProjectWorker {
+  projectId String
+  workerId  String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  worker    AIWorker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, workerId])
+}
+
+// ---------------------------------------------------------------------------
+// Task & runs
+// ---------------------------------------------------------------------------
+
+enum TaskStatus {
+  DRAFT
+  QUEUED
+  RUNNING
+  WAITING_APPROVAL
+  REVISION_REQUIRED
+  APPROVED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model AgentTask {
+  id                 String       @id @default(cuid())
+  companyId          String
+  projectId          String?
+  departmentId       String?
+  workerId           String?
+  parentTaskId       String?
+  title              String
+  instruction        String       @db.Text
+  status             TaskStatus   @default(DRAFT)
+  priority           TaskPriority @default(NORMAL)
+  inputJson          Json?
+  outputJson         Json?
+  errorJson          Json?
+  providerOverrideId String?
+  modelOverride      String?
+  requiresApproval   Boolean      @default(false)
+  createdById        String?
+  scheduledAt        DateTime?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  failedAt           DateTime?
+  retryCount         Int          @default(0)
+  maxRetries         Int          @default(2)
+  timeoutSeconds     Int          @default(120)
+  estimatedCost      Decimal      @default(0) @db.Decimal(12, 4)
+  actualCost         Decimal      @default(0) @db.Decimal(12, 4)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  company      Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  project      Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  worker       AIWorker?   @relation(fields: [workerId], references: [id], onDelete: SetNull)
+  createdBy    User?       @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  parentTask   AgentTask?  @relation("TaskSubtasks", fields: [parentTaskId], references: [id])
+  subtasks     AgentTask[] @relation("TaskSubtasks")
+  runs         TaskRun[]
+  approvals    Approval[]
+  usageRecords UsageRecord[]
+
+  @@index([companyId, status])
+  @@index([workerId])
+  @@index([projectId])
+}
+
+enum TaskRunStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  TIMED_OUT
+}
+
+model TaskRun {
+  id                   String        @id @default(cuid())
+  taskId               String
+  attemptNumber        Int
+  workerId             String?
+  providerConnectionId String?
+  model                String?
+  status               TaskRunStatus @default(QUEUED)
+  requestPayload       Json?
+  responsePayload      Json?
+  errorPayload         Json?
+  promptTokens         Int           @default(0)
+  completionTokens     Int           @default(0)
+  totalTokens          Int           @default(0)
+  estimatedCost        Decimal       @default(0) @db.Decimal(12, 4)
+  actualCost           Decimal       @default(0) @db.Decimal(12, 4)
+  queuedAt             DateTime?
+  startedAt            DateTime?
+  completedAt          DateTime?
+  durationMs           Int?
+  createdAt            DateTime      @default(now())
+
+  task               AgentTask           @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  worker             AIWorker?           @relation(fields: [workerId], references: [id], onDelete: SetNull)
+  providerConnection ProviderConnection? @relation(fields: [providerConnectionId], references: [id])
+  approvals          Approval[]
+  usageRecords       UsageRecord[]
+
+  @@unique([taskId, attemptNumber])
+  @@index([taskId])
+}
+
+// ---------------------------------------------------------------------------
+// Approval
+// ---------------------------------------------------------------------------
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum ApprovalType {
+  TASK_OUTPUT
+  SEND_EMAIL
+  PUBLISH_CONTENT
+  MODIFY_FILE
+  DELETE_FILE
+  DEPLOY_APPLICATION
+  EXECUTE_EXTERNAL_ACTION
+  SPEND_LIMIT
+  CUSTOM
+}
+
+model Approval {
+  id                  String         @id @default(cuid())
+  companyId           String
+  taskId              String
+  taskRunId           String?
+  type                ApprovalType   @default(TASK_OUTPUT)
+  status              ApprovalStatus @default(PENDING)
+  requestedByWorkerId String?
+  assignedToUserId    String?
+  summary             String
+  payload             Json?
+  decisionNote        String?        @db.Text
+  decidedByUserId     String?
+  requestedAt         DateTime       @default(now())
+  decidedAt           DateTime?
+  expiresAt           DateTime?
+
+  company           Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  task              AgentTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskRun           TaskRun?  @relation(fields: [taskRunId], references: [id], onDelete: SetNull)
+  requestedByWorker AIWorker? @relation("ApprovalRequestedBy", fields: [requestedByWorkerId], references: [id])
+  assignedToUser    User?     @relation("ApprovalAssignedTo", fields: [assignedToUserId], references: [id])
+  decidedByUser     User?     @relation("ApprovalDecidedBy", fields: [decidedByUserId], references: [id])
+
+  @@index([companyId, status])
+  @@index([taskId])
+}
+
+// ---------------------------------------------------------------------------
+// Providers & models
+// ---------------------------------------------------------------------------
+
+enum ProviderType {
+  OPENAI
+  ANTHROPIC
+  GOOGLE
+  LOCAL
+}
+
+enum ConnectionStatus {
+  UNTESTED
+  CONNECTED
+  ERROR
+  DISABLED
+}
+
+model ProviderConnection {
+  id                   String           @id @default(cuid())
+  companyId            String?
+  providerType         ProviderType
+  displayName          String
+  encryptedCredentials String?          @db.Text
+  baseUrl              String?
+  organizationId       String?
+  status               ConnectionStatus @default(UNTESTED)
+  lastTestedAt         DateTime?
+  lastError            String?          @db.Text
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  company     Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  models      ProviderModel[]
+  workers     AIWorker[]
+  departments Department[]
+  taskRuns    TaskRun[]
+
+  @@index([companyId])
+}
+
+model ProviderModel {
+  id             String       @id @default(cuid())
+  connectionId   String?
+  providerType   ProviderType
+  modelKey       String
+  displayName    String
+  contextLength  Int          @default(128000)
+  inputPer1k     Decimal      @default(0) @db.Decimal(12, 6)
+  outputPer1k    Decimal      @default(0) @db.Decimal(12, 6)
+  effectiveFrom  DateTime     @default(now())
+  supportsText   Boolean      @default(true)
+  supportsImage  Boolean      @default(false)
+  supportsTools  Boolean      @default(true)
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+
+  connection ProviderConnection? @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([providerType])
+}
+
+// ---------------------------------------------------------------------------
+// Knowledge
+// ---------------------------------------------------------------------------
+
+enum KnowledgeStatus {
+  PROCESSING
+  READY
+  FAILED
+  ARCHIVED
+}
+
+model KnowledgeDocument {
+  id           String          @id @default(cuid())
+  companyId    String
+  departmentId String?
+  workerId     String?
+  projectId    String?
+  title        String
+  description  String?
+  sourceType   String          @default("upload")
+  fileName     String?
+  mimeType     String?
+  storagePath  String?
+  contentText  String?         @db.Text
+  status       KnowledgeStatus @default(PROCESSING)
+  metadata     Json?
+  createdById  String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  company    Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  department Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  project    Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdBy  User?        @relation(fields: [createdById], references: [id])
+
+  @@index([companyId, status])
+}
+
+// ---------------------------------------------------------------------------
+// Usage & activity & ops
+// ---------------------------------------------------------------------------
+
+model UsageRecord {
+  id           String       @id @default(cuid())
+  companyId    String
+  departmentId String?
+  projectId    String?
+  workerId     String?
+  taskId       String?
+  taskRunId    String?
+  providerType ProviderType
+  model        String
+  promptTokens Int          @default(0)
+  completionTokens Int      @default(0)
+  totalTokens  Int          @default(0)
+  inputCost    Decimal      @default(0) @db.Decimal(12, 6)
+  outputCost   Decimal      @default(0) @db.Decimal(12, 6)
+  totalCost    Decimal      @default(0) @db.Decimal(12, 6)
+  currency     String       @default("USD")
+  recordedAt   DateTime     @default(now())
+
+  company    Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  project    Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  worker     AIWorker?   @relation(fields: [workerId], references: [id], onDelete: SetNull)
+  task       AgentTask?  @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  taskRun    TaskRun?    @relation(fields: [taskRunId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, recordedAt])
+  @@index([workerId])
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  companyId  String?
+  userId     String?
+  workerId   String?
+  entityType String
+  entityId   String?
+  action     String
+  message    String
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  company Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  worker  AIWorker? @relation(fields: [workerId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model WorkerHeartbeat {
+  id           String   @id @default(cuid())
+  workerId     String?
+  processName  String
+  status       String   @default("online")
+  lastSeenAt   DateTime @default(now())
+  queueDepth   Int      @default(0)
+  lastJobAt    DateTime?
+  meta         Json?
+
+  worker AIWorker? @relation(fields: [workerId], references: [id], onDelete: SetNull)
+
+  @@index([processName])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}

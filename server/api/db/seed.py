@@ -1,9 +1,13 @@
-"""Idempotent demo seeding.
+"""Idempotent demo seeding — mirrors the approved reference mock.
 
-Runs on startup when AUTO_SEED is on and the DB has no companies. Mirrors
-database/seed.sql so the app looks alive whether you seed via Python or raw SQL.
+Runs on startup when AUTO_SEED is on and the DB has no companies. Seeds four
+companies (COMPANY A–D). COMPANY A matches the reference exactly: six floors
+(Marketing / Sales / HR / IT-Dev / Design-Meeting / Lobby-Support) and four
+projects (Alpha / Beta / Gamma / Delta).
 """
 from __future__ import annotations
+
+from datetime import datetime, timezone
 
 from sqlmodel import Session, select
 
@@ -12,6 +16,11 @@ from api.models import (
     Activity, Agent, AIModel, Company, Department, Project, ProjectFile,
     Task, VPSWorkspace,
 )
+
+
+def _d(y: int, m: int, day: int) -> datetime:
+    return datetime(y, m, day, 9, 0, 0, tzinfo=timezone.utc)
+
 
 MOCK_MODELS = [
     dict(provider="openai", model_name="gpt-4o", display_name="GPT-4o (OpenAI)",
@@ -45,16 +54,61 @@ MOCK_MODELS = [
          supports_code=False, status="mock"),
 ]
 
+# Reference COMPANY A floors (floor: type, name, theme_color) — colours match
+# the reference floor tabs. `type` resolves to a Bright floor module on the web.
+COMPANY_A_DEPTS = [
+    (6, "Marketing", "Marketing", "#7B5BD6"),
+    (5, "Sales", "Sales", "#2E7BC4"),
+    (4, "HR", "HR", "#C94F6E"),
+    (3, "IT / Dev", "IT / Dev", "#2F9BB0"),
+    (2, "Design", "Design / Meeting", "#D98A3D"),
+    (1, "Lobby / Support", "Lobby / Support", "#3E9E5F"),
+]
+
+# Generic office department pool for the other companies (types reuse the same
+# Bright modules so every floor renders furnished art).
+DEPT_POOL = [
+    ("Marketing", "Marketing", "#7B5BD6"), ("Sales", "Sales", "#2E7BC4"),
+    ("HR", "HR", "#C94F6E"), ("IT / Dev", "Engineering", "#2F9BB0"),
+    ("Design", "Design", "#D98A3D"), ("Lobby / Support", "Support", "#3E9E5F"),
+    ("Product Management", "Product", "#5B8CFF"), ("QA / Tester", "Quality", "#2F9BB0"),
+]
+
 
 def _seed_models(session: Session) -> dict[str, int]:
     ids: dict[str, int] = {}
     for data in MOCK_MODELS:
         model = AIModel(**data)
-        session.add(model)
-        session.commit()
-        session.refresh(model)
+        session.add(model); session.commit(); session.refresh(model)
         ids[model.provider] = model.id
     return ids
+
+
+def _company(session: Session, name: str, subtitle: str, emoji: str, color: str) -> Company:
+    c = Company(name=name, emoji=emoji, description=subtitle, theme_color=color)
+    session.add(c); session.commit(); session.refresh(c)
+    return c
+
+
+# Thai responsibilities per department type (matches the reference Job Description).
+RESP_TH: dict[str, list[str]] = {
+    "IT / Dev": ["พัฒนาและบำรุงรักษาแอปพลิเคชัน", "ออกแบบฐานข้อมูลและ API",
+                 "แก้ไขบั๊กและปรับปรุงระบบ", "ทำงานร่วมกับทีมอื่น"],
+    "Marketing": ["วางแผนแคมเปญการตลาด", "วิเคราะห์กลุ่มเป้าหมาย", "สร้างคอนเทนต์และโฆษณา"],
+    "Sales": ["ติดตามและดูแลลูกค้า", "เขียนสคริปต์การขาย", "ปิดการขายและทำรายงาน"],
+    "HR": ["คัดกรองและสัมภาษณ์ผู้สมัคร", "ดูแลสวัสดิการพนักงาน", "จัดอบรมและพัฒนาทีม"],
+    "Design": ["ออกแบบ UI/UX", "ทำภาพและแอสเซ็ต", "ดูแลแนวทางการออกแบบ"],
+    "Lobby / Support": ["ต้อนรับและช่วยเหลือผู้ใช้", "ตอบคำถามและแก้ปัญหา", "ประสานงานกับทีมที่เกี่ยวข้อง"],
+}
+
+
+def _dept(session: Session, company_id: int, floor: int, dtype: str, name: str,
+          color: str, model_id: int | None = None) -> Department:
+    d = Department(company_id=company_id, name=name, type=dtype, floor_number=floor,
+                   theme_color=color, assigned_ai_model_id=model_id,
+                   responsibilities=RESP_TH.get(dtype, ["กำหนดขอบเขตงาน", "ส่งมอบงานคุณภาพ", "ทำงานร่วมกับทีม"]))
+    session.add(d); session.commit(); session.refresh(d)
+    return d
 
 
 def seed_if_empty() -> None:
@@ -62,111 +116,88 @@ def seed_if_empty() -> None:
         if session.exec(select(Company)).first():
             return  # already seeded
 
-        model_ids = _seed_models(session)
+        m = _seed_models(session)
 
-        # --- Company A: AI Game Studio ---
-        company = Company(name="AI Game Studio", emoji="🎮",
-                          description="A studio building cute idle games with AI teams.",
-                          theme_color="#A98BFF")
-        session.add(company)
-        session.commit()
-        session.refresh(company)
-
-        depts_spec = [
-            ("Product Management", "Product Management", 1, "#5B8CFF", "anthropic"),
-            ("Engineering", "IT / Dev", 2, "#5BE49B", "anthropic"),
-            ("Art & Design", "Design", 3, "#FF7AC6", "image"),
-            ("Game Studio", "Game Studio", 4, "#FFD166", "openai"),
-            ("Quality", "QA / Tester", 5, "#3BE8E0", "anthropic"),
-            ("Growth", "Marketing", 6, "#FF9F6B", "google"),
-        ]
-        dept_ids: dict[str, int] = {}
-        for name, dtype, floor, color, provider in depts_spec:
-            dept = Department(company_id=company.id, name=name, type=dtype,
-                              floor_number=floor, theme_color=color,
-                              assigned_ai_model_id=model_ids.get(provider),
-                              responsibilities=["Define scope", "Deliver quality", "Collaborate"])
-            session.add(dept)
-            session.commit()
-            session.refresh(dept)
-            dept_ids[dtype] = dept.id
+        # ===== COMPANY A — matches the reference mock exactly =====
+        a = _company(session, "COMPANY A", "AI Solutions Co., Ltd.", "🏢", "#3E70C9")
+        a_dept: dict[str, int] = {}
+        prov = {"Marketing": "google", "Sales": "openai", "HR": "anthropic",
+                "IT / Dev": "anthropic", "Design": "image", "Lobby / Support": "local"}
+        for floor, dtype, name, color in COMPANY_A_DEPTS:
+            d = _dept(session, a.id, floor, dtype, name, color, m.get(prov.get(dtype, "openai")))
+            a_dept[dtype] = d.id
 
         agents_spec = [
-            ("Nova", "Project Manager Agent", "Product Management", "🧑‍💼", "#5B8CFF", "planning"),
-            ("Byte", "Backend Developer Agent", "IT / Dev", "👨‍💻", "#5BE49B", "coding"),
-            ("Pixel", "UI/UX Designer Agent", "Design", "👩‍🎨", "#FF7AC6", "designing"),
-            ("Quest", "Game Designer Agent", "Game Studio", "🕹️", "#FFD166", "thinking"),
-            ("Scout", "QA Tester Agent", "QA / Tester", "🕵️", "#3BE8E0", "testing"),
-            ("Echo", "Marketing Agent", "Marketing", "📣", "#FF9F6B", "writing"),
+            ("Echo", "Marketing Agent", "Marketing", "📣", "#7B5BD6", "writing"),
+            ("Sol", "Sales Agent", "Sales", "💼", "#2E7BC4", "planning"),
+            ("Hera", "HR Agent", "HR", "🧑‍💼", "#C94F6E", "reviewing"),
+            ("Byte", "Backend Developer Agent", "IT / Dev", "👨‍💻", "#2F9BB0", "coding"),
+            ("Ada", "Frontend Developer Agent", "IT / Dev", "👩‍💻", "#2F9BB0", "coding"),
+            ("Pixel", "UI/UX Designer Agent", "Design", "👩‍🎨", "#D98A3D", "designing"),
+            ("Ln", "Support Agent", "Lobby / Support", "🎧", "#3E9E5F", "idle"),
         ]
-        agent_ids: list[int] = []
+        a_agents: list[int] = []
         for name, role, dtype, avatar, accent, status in agents_spec:
-            agent = Agent(company_id=company.id, department_id=dept_ids.get(dtype),
-                          name=name, role=role, avatar=avatar, accent=accent, status=status,
-                          animation_state=status, skills=["Teamwork", "AI"],
-                          current_task="Working on Idle City Builder")
-            session.add(agent)
-            session.commit()
-            session.refresh(agent)
-            agent_ids.append(agent.id)
+            ag = Agent(company_id=a.id, department_id=a_dept.get(dtype), name=name, role=role,
+                       avatar=avatar, accent=accent, status=status, animation_state=status,
+                       skills=["Teamwork", "AI"], current_task=f"Working in {dtype}")
+            session.add(ag); session.commit(); session.refresh(ag)
+            a_agents.append(ag.id)
 
-        # --- Project ---
-        project = Project(company_id=company.id, name="Idle City Builder",
-                          description="A cozy idle game where AI builds a neon city.",
-                          type="Game", status="in_progress", priority="high", progress=45,
-                          assigned_department_ids=[dept_ids["IT / Dev"], dept_ids["Design"],
-                                                   dept_ids["Game Studio"], dept_ids["QA / Tester"]],
-                          assigned_agent_ids=agent_ids,
-                          workspace_path="/workspaces/companies/ai-game-studio/idle-city-builder",
-                          vps_status="running")
-        session.add(project)
-        session.commit()
-        session.refresh(project)
+        projects_spec = [
+            ("Project Alpha", "ระบบแชท AI สำหรับลูกค้า", "AI Application", "in_progress", "high", 62,
+             _d(2024, 5, 10), [a_dept["IT / Dev"], a_dept["Design"], a_dept["Marketing"]], a_agents[:5], "running"),
+            ("Project Beta", "AI Data Analysis Dashboard", "Data / Analytics", "in_progress", "high", 48,
+             _d(2024, 5, 5), [a_dept["IT / Dev"], a_dept["Sales"]], [a_agents[1], a_agents[3]], "running"),
+            ("Project Gamma", "AI Content Generator", "AI Application", "draft", "medium", 5,
+             _d(2024, 5, 1), [a_dept["Marketing"], a_dept["Design"]], [a_agents[0], a_agents[5]], "stopped"),
+            ("Project Delta", "Internal HR Assistant", "Internal Tool", "archived", "low", 100,
+             _d(2024, 4, 20), [a_dept["HR"]], [a_agents[2]], "stopped"),
+        ]
+        first_project = None
+        for name, desc, ptype, status, prio, prog, created, depts, ags, vps in projects_spec:
+            p = Project(company_id=a.id, name=name, description=desc, type=ptype, status=status,
+                        priority=prio, progress=prog, assigned_department_ids=depts,
+                        assigned_agent_ids=ags, created_at=created, updated_at=created,
+                        workspace_path=f"/workspaces/companies/company-a/{name.lower().replace(' ', '-')}",
+                        vps_status=vps)
+            session.add(p); session.commit(); session.refresh(p)
+            if first_project is None:
+                first_project = p
 
+        # workspace + files + tasks + activity for the flagship project
+        session.add(VPSWorkspace(project_id=first_project.id, path=first_project.workspace_path,
+                                 status="running", cpu_percent=14.0, memory_mb=640, disk_mb=2100))
         for path, kind, lang, preview in [
-            ("/src", "dir", "", ""),
-            ("/src/main.ts", "file", "typescript", "// idle loop entrypoint"),
-            ("/docs/GDD.md", "file", "markdown", "# Game Design Document"),
-            ("/assets", "dir", "", ""),
-            ("README.md", "file", "markdown", "# Idle City Builder"),
-            ("project.json", "file", "json", '{ "name": "idle-city-builder" }'),
+            ("/src", "dir", "", ""), ("/src/main.ts", "file", "typescript", "// chat entrypoint"),
+            ("/docs/SPEC.md", "file", "markdown", "# Product Spec"), ("README.md", "file", "markdown", "# Project Alpha"),
         ]:
-            session.add(ProjectFile(project_id=project.id, path=path, kind=kind,
-                                    language=lang, preview=preview))
-
-        session.add(VPSWorkspace(project_id=project.id, path=project.workspace_path,
-                                 status="running", cpu_percent=12.5, memory_mb=512, disk_mb=1800))
-
+            session.add(ProjectFile(project_id=first_project.id, path=path, kind=kind, language=lang, preview=preview))
         for title, status, aid in [
-            ("Write Game Design Document", "done", agent_ids[3]),
-            ("Build idle economy loop", "in_progress", agent_ids[1]),
-            ("Design neon city tiles", "in_progress", agent_ids[2]),
-            ("Test save/load", "backlog", agent_ids[4]),
+            ("Draft product spec", "done", a_agents[0]),
+            ("Build chat backend", "in_progress", a_agents[3]),
+            ("Design chat UI", "in_progress", a_agents[5]),
+            ("Set up analytics", "backlog", a_agents[1]),
         ]:
-            session.add(Task(project_id=project.id, title=title, status=status, assignee_agent_id=aid))
-
-        for agent_idx, action, message, f in [
-            (0, "created", "PM Agent created the project plan", "/docs/GDD.md"),
-            (1, "coding", "Dev Agent created Next.js structure", "/src/main.ts"),
-            (2, "designing", "Design Agent updated UI concept", "/assets"),
-            (4, "testing", "QA Agent found 2 issues", ""),
+            session.add(Task(project_id=first_project.id, title=title, status=status, assignee_agent_id=aid))
+        for idx, action, message in [
+            (0, "created", "Marketing Agent drafted the campaign brief"),
+            (3, "coding", "Dev Agent scaffolded the chat service"),
+            (5, "designing", "Design Agent shipped the chat mockups"),
         ]:
-            session.add(Activity(company_id=company.id, project_id=project.id,
-                                 agent_id=agent_ids[agent_idx], action=action,
-                                 status="info", message=message, related_file=f))
-
-        # --- Company B (empty-ish, to show multiple buildings) ---
-        company_b = Company(name="Neon Labs", emoji="🧪",
-                            description="Automation & data tools powered by AI agents.",
-                            theme_color="#3BE8E0")
-        session.add(company_b)
+            session.add(Activity(company_id=a.id, project_id=first_project.id, agent_id=a_agents[idx],
+                                 action=action, status="info", message=message))
         session.commit()
-        session.refresh(company_b)
-        for name, dtype, floor, color in [
-            ("Support", "Lobby / Support", 1, "#5B8CFF"),
-            ("Engineering", "IT / Dev", 2, "#5BE49B"),
-            ("Research", "Data / Research", 3, "#A98BFF"),
-        ]:
-            session.add(Department(company_id=company_b.id, name=name, type=dtype,
-                                   floor_number=floor, theme_color=color))
+
+        # ===== COMPANY B / C / D — building thumbnails + dept counts like the reference =====
+        others = [
+            ("COMPANY B", "DataCraft Co., Ltd.", "🏢", "#2F9BB0", 8),
+            ("COMPANY C", "Creative Minds Co., Ltd.", "🏢", "#C75FA4", 5),
+            ("COMPANY D", "NextGen Tech Co., Ltd.", "🏢", "#5B6FD6", 7),
+        ]
+        for name, subtitle, emoji, color, n in others:
+            c = _company(session, name, subtitle, emoji, color)
+            for floor in range(1, n + 1):
+                dtype, dname, dcolor = DEPT_POOL[(floor - 1) % len(DEPT_POOL)]
+                _dept(session, c.id, floor, dtype, dname, dcolor)
         session.commit()

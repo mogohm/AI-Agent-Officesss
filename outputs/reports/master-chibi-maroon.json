@@ -1,0 +1,26 @@
+{
+  "task_id": "master-chibi-maroon",
+  "status": "completed",
+  "model": "gpt-image-1",
+  "api_key_detected": true,
+  "reference_found": true,
+  "reference_path": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\reference-match\\_ref_top_guide.png",
+  "reference_width": 409,
+  "reference_height": 345,
+  "reference_format": "PNG",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "source_file": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\source\\master-chibi-maroon-source.png",
+  "final_file": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\themes\\reference-bright\\tower-master\\chibi\\chibi-maroon.webp",
+  "final_width": 1024,
+  "final_height": 1024,
+  "final_format": "WEBP",
+  "transparency_status": "transparent",
+  "visual_lab_url": null,
+  "visual_lab_screenshot": null,
+  "screenshot_status": "skipped",
+  "errors": [
+    "references_used: 2"
+  ],
+  "started_at": "2026-07-20T06:14:07.392641+00:00",
+  "completed_at": "2026-07-20T06:15:09.936983+00:00"
+}

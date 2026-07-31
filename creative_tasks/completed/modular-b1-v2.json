@@ -1,0 +1,31 @@
+{
+  "task_id": "modular-b1-v2",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "b1-vps-module",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Modular tower \u2014 b1 vps module v2",
+  "prompt_suffix": "",
+  "reference_images": [
+    "references/style-lock/modules/master-b1.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/modules/b1-vps-module.webp",
+  "source_output_path": "outputs/source/modular/b1-vps-module-source.png",
+  "expected_width": 1536,
+  "expected_height": 1024,
+  "aspect_ratio": "3:2",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": false,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "modular-tower",
+    "module": "b1-vps-module",
+    "revision": 1
+  },
+  "updated_at": "2026-07-14T17:38:24.408502+00:00",
+  "error_message": null
+}

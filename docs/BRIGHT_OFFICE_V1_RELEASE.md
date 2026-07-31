@@ -1,6 +1,13 @@
 # Bright Office V1 — Release Note
 
-Release date: 2026-07-13 · Status: **RELEASE COMPLETE**
+Date: 2026-07-13 (superseded by the Modular V3 tower, 2026-07-15) ·
+Status: **Bright Office V1 visual baseline approved for functional completion —
+deployment pending final user approval.** Reference-inspired, not pixel-identical.
+
+> **Correction (2026-07-15):** the earlier "RELEASE COMPLETE" wording was
+> premature. The current V1 baseline is the **Modular V3 Final Polish** tower
+> (see `MODULAR_V3_FINAL_POLISH_REPORT.md` and `BRIGHT_OFFICE_V1_FINAL_REVIEW.md`).
+> Nothing has been deployed; deployment awaits explicit user approval.
 
 ## What shipped
 

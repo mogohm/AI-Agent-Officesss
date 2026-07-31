@@ -1,0 +1,30 @@
+{
+  "task_id": "iso-furn2-reception",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "reception.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Iso office furniture",
+  "prompt_suffix": "The object is a modern curved reception desk with a small monitor, isometric. Single object, isometric 2:1, flat-shaded cartoon game-art matching the reference chibi characters (clear top/left/right faces). Fully transparent background, nothing else in frame, no floor, no shadow.",
+  "reference_images": [
+    "apps/web/public/assets/themes/reference-bright/tower-master/chibi/chibi-navy.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/iso/reception.webp",
+  "source_output_path": "outputs/source/iso-furn2-reception-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "iso-furniture2",
+    "theme": "reference-bright"
+  },
+  "updated_at": "2026-07-24T03:39:37.880636+00:00",
+  "error_message": null
+}

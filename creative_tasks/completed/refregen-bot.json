@@ -1,0 +1,30 @@
+{
+  "task_id": "refregen-bot",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "refregen-bot.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Reference master tower \u2014 bottom half",
+  "prompt_suffix": "Reproduce THIS reference image EXACTLY as a clean high-quality version: the same corner-forward isometric cutaway office building section (dark IT/dev with code screens, warm design/meeting, green lobby with reception, and a dark B1 basement server room with a glowing cyan cloud) with the same furniture, screens, plants and cute chibi anime workers. Keep every floor shown. Detailed 2.5D isometric illustration, crisp, colorful. Plain fully transparent background. Same framing, no text, no UI.",
+  "reference_images": [
+    "outputs/reference-match/_rb_bot.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/refregen-bot.webp",
+  "source_output_path": "outputs/source/refregen-bot.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "ref-regen",
+    "theme": "reference-bright"
+  },
+  "updated_at": "2026-07-24T04:42:07.553663+00:00",
+  "error_message": null
+}

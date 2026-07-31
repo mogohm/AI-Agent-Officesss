@@ -1,0 +1,18 @@
+.env
+.env.local
+.env.*.local
+
+# dependencies / build
+/node_modules
+/.next
+/out
+*.tsbuildinfo
+next-env.d.ts
+
+# local dev artifacts (screenshots, playwright, prisma engine cache)
+/visual-screenshots
+/uat-screenshots
+/test-results
+/playwright-report
+/prisma/*.db
+

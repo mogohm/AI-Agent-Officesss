@@ -1,0 +1,30 @@
+{
+  "task_id": "reference-tower-empty-single",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "ai-office-tower-empty-single.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Reference master tower \u2014 empty single",
+  "prompt_suffix": "Reproduce all SIX floors + B1 of the reference building EMPTY \u2014 remove every person, keep every floor and all furniture. Single seamless building, transparent background.",
+  "reference_images": [
+    "outputs/reference-match/_ref_tower_clean.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/ai-office-tower-empty-single.webp",
+  "source_output_path": "outputs/source/reference-tower-empty-single-source.png",
+  "expected_width": 1024,
+  "expected_height": 1536,
+  "aspect_ratio": "2:3",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "reference-master-empty",
+    "theme": "reference-bright"
+  },
+  "updated_at": "2026-07-20T06:09:06.204916+00:00",
+  "error_message": null
+}

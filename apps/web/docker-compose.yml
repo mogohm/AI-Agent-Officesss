@@ -1,0 +1,109 @@
+# =====================================================================
+# AI Agent Office — production stack (Next.js system).
+#   docker compose up --build
+# Services: postgres, redis, migrate (one-shot), web, worker, proxy.
+# Secrets come from apps/web/.env (see .env.example). Never commit .env.
+# =====================================================================
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aio_password}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_agent_office}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aio} -d ${POSTGRES_DB:-ai_agent_office}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # One-shot: apply migrations and seed, then exit. web/worker wait for success.
+  migrate:
+    build: .
+    command: ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed"]
+    env_file: [.env]
+    environment:
+      # Inside the compose network, reach services by name (not localhost).
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aio}:${POSTGRES_PASSWORD:-aio_password}@postgres:5432/${POSTGRES_DB:-ai_agent_office}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    build: .
+    restart: unless-stopped
+    command: ["npm", "run", "start"]
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aio}:${POSTGRES_PASSWORD:-aio_password}@postgres:5432/${POSTGRES_DB:-ai_agent_office}
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+      # next-auth sits behind the Caddy proxy — trust the forwarded host.
+      AUTH_TRUST_HOST: "true"
+      APP_URL: http://localhost:${HTTP_PORT:-8080}
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build: .
+    restart: unless-stopped
+    command: ["npm", "run", "worker:start"]
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aio}:${POSTGRES_PASSWORD:-aio_password}@postgres:5432/${POSTGRES_DB:-ai_agent_office}
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-3}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+volumes:
+  pg_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

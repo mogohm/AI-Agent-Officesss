@@ -1,0 +1,30 @@
+{
+  "task_id": "refregen-top",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "refregen-top.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Reference master tower \u2014 top half",
+  "prompt_suffix": "Reproduce THIS reference image EXACTLY as a clean high-quality version: the same corner-forward isometric cutaway office building section with its rooms, colored walls, furniture, screens, plants and cute chibi anime workers in the same positions. Keep every floor shown (rooftop garden, purple marketing, blue sales with world map, pink HR). Detailed 2.5D isometric illustration, crisp, colorful. Plain fully transparent background. Same framing, no text, no UI.",
+  "reference_images": [
+    "outputs/reference-match/_rb_top.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/refregen-top.webp",
+  "source_output_path": "outputs/source/refregen-top.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "ref-regen",
+    "theme": "reference-bright"
+  },
+  "updated_at": "2026-07-24T04:41:10.516954+00:00",
+  "error_message": null
+}

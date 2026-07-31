@@ -1,0 +1,32 @@
+{
+  "task_id": "reference-tower-bottom-bright",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "ai-office-tower-bottom-half.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Reference master tower \u2014 bottom half bright",
+  "prompt_suffix": "FIRST reference = structure to reproduce (3 floors: IT/dev, design, lobby + B1 servers with cyan cloud). SECOND reference = the top half whose brightness, saturation, wall-lightness, width and corner angle you MUST match exactly so the halves form one seamless building. Bright warm floors, dark only in B1. No text or signs anywhere.",
+  "reference_images": [
+    "outputs/reference-match/_ref_bot_guide.png",
+    "apps/web/public/assets/themes/reference-bright/tower-master/ai-office-tower-top-half.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/ai-office-tower-bottom-half.webp",
+  "source_output_path": "outputs/source/reference-tower-bottom-bright-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "reference-master-tower",
+    "theme": "reference-bright",
+    "asset_role": "tower_half_bottom"
+  },
+  "updated_at": "2026-07-20T03:40:56.613582+00:00",
+  "error_message": null
+}

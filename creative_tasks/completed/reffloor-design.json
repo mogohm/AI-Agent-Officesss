@@ -1,0 +1,30 @@
+{
+  "task_id": "reffloor-design",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "design-floor-module-ref",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Ref floor \u2014 design",
+  "prompt_suffix": "",
+  "reference_images": [
+    "references/style-lock/ref-floor-guides/design.png"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/modules/design-floor-module-ref.webp",
+  "source_output_path": "outputs/source/ref-floors/design-floor-module-ref-source.png",
+  "expected_width": 1536,
+  "expected_height": 1024,
+  "aspect_ratio": "3:2",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "cover",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "ref-floor-modules",
+    "dept": "design"
+  },
+  "updated_at": "2026-07-16T16:13:48.118925+00:00",
+  "error_message": null
+}

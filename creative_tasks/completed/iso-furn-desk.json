@@ -1,0 +1,30 @@
+{
+  "task_id": "iso-furn-desk",
+  "task_type": "generate_image",
+  "status": "completed",
+  "asset_name": "desk.webp",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "prompt_section": "## Iso office furniture",
+  "prompt_suffix": "The object is a wooden office desk with a dark computer monitor (blue screen) and a chair, isometric. Single object, isometric, flat-shaded cartoon style matching the reference characters. Fully transparent background, nothing else in frame.",
+  "reference_images": [
+    "apps/web/public/assets/themes/reference-bright/tower-master/chibi/chibi-navy.webp"
+  ],
+  "output_path": "apps/web/public/assets/themes/reference-bright/tower-master/iso/desk.webp",
+  "source_output_path": "outputs/source/iso-furn-desk-source.png",
+  "expected_width": 1024,
+  "expected_height": 1024,
+  "aspect_ratio": "1:1",
+  "model": "gpt-image-1",
+  "quality": "high",
+  "crop_mode": "contain",
+  "focal_x": 0.5,
+  "focal_y": 0.5,
+  "transparency_requested": true,
+  "screenshot_after_generation": false,
+  "metadata": {
+    "phase": "iso-furniture",
+    "theme": "reference-bright"
+  },
+  "updated_at": "2026-07-20T08:04:34.920499+00:00",
+  "error_message": null
+}

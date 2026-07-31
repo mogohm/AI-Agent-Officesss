@@ -1,0 +1,26 @@
+{
+  "task_id": "asset-unified-tower-master-6floor-rev",
+  "status": "completed",
+  "model": "gpt-image-1",
+  "api_key_detected": true,
+  "reference_found": true,
+  "reference_path": "H:\\AIAgentOfficesss\\ai-agent-office\\references\\style-lock\\six-floor-tower-structure-guide.png",
+  "reference_width": 1024,
+  "reference_height": 1408,
+  "reference_format": "PNG",
+  "prompt_source": "docs/REFERENCE_BRIGHT_PROMPTS.md",
+  "source_file": "H:\\AIAgentOfficesss\\ai-agent-office\\outputs\\source\\ai-office-tower-master-6floor-source.png",
+  "final_file": "H:\\AIAgentOfficesss\\ai-agent-office\\apps\\web\\public\\assets\\themes\\reference-bright\\tower-master\\ai-office-tower-master-6floor.webp",
+  "final_width": 1024,
+  "final_height": 1408,
+  "final_format": "WEBP",
+  "transparency_status": "transparent",
+  "visual_lab_url": null,
+  "visual_lab_screenshot": null,
+  "screenshot_status": "skipped",
+  "errors": [
+    "references_used: 3"
+  ],
+  "started_at": "2026-07-14T16:28:22.764266+00:00",
+  "completed_at": "2026-07-14T16:29:46.770191+00:00"
+}
