@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { MissionControls } from "@/components/missions/MissionControls";
+import { EvidenceStatusSummary } from "@/components/missions/EvidenceStatus";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function MissionDetailPage({ params }: { params: { missionI
   let data, role;
   try { [data, role] = await Promise.all([getMission(params.missionId), currentDeliveryRole()]); }
   catch { return (<><PageHeader title="Mission" /><ErrorState title="ไม่พบ mission หรือไม่มีสิทธิ์" /></>); }
-  const { mission: m, stats, workers } = data;
+  const { mission: m, stats, workers, evidence } = data;
   const canOperate = canPerform(role.role, "mission.start");
   const coverage = stats.tracesTotal > 0 ? Math.round((stats.tracesSatisfied / stats.tracesTotal) * 100) : 0;
 
@@ -64,6 +65,13 @@ export default async function MissionDetailPage({ params }: { params: { missionI
         <Stat label="Agent runs" value={m.agentRuns.length} sub={`${stats.activeRuns} active · ${stats.failedRuns} failed`} />
         <Stat label="Tool calls" value={stats.toolCount} sub={`${m._count.checkpoints} checkpoints`} />
       </div>
+
+      {evidence ? (
+        <Card className="mb-4">
+          <CardHeader><CardTitle>หลักฐาน Canonical Baseline (WP-002)</CardTitle></CardHeader>
+          <CardContent><EvidenceStatusSummary {...evidence} /></CardContent>
+        </Card>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">

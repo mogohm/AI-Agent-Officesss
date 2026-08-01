@@ -56,8 +56,40 @@ export async function getMission(missionId: string) {
     db.agentToolExecution.count({ where: { missionId: mission.id } }),
   ]);
 
+  // canonical baseline evidence (cycle 2) — separate statuses, never collapsed
+  const attestation = await db.assetBaselineAttestation.findFirst({
+    where: { baseline: { missionId: mission.id } }, orderBy: { createdAt: "desc" },
+    include: { baseline: { include: { _count: { select: { entries: true } } } } },
+  });
+  let evidence = null;
+  if (attestation) {
+    const bId = attestation.baselineId;
+    const [pinned, valPassed, approved, retests, openDefects] = await Promise.all([
+      db.assetCanonicalEntry.count({ where: { baselineId: bId, NOT: { sha256: "" } } }),
+      db.assetValidationResult.count({ where: { baselineId: bId, status: "PASSED" } }),
+      db.assetReviewResult.count({ where: { verdict: "APPROVED", reviewRun: { baselineId: bId } } }),
+      db.defectRetest.count({ where: { baselineId: bId } }),
+      db.defect.count({ where: { missionId: mission.id, status: { notIn: ["RESOLVED", "ACCEPTED"] } } }),
+    ]);
+    evidence = {
+      provenance: attestation.provenanceStatus,
+      baselineIntegrity: attestation.baselineIntegrity,
+      validationBinding: attestation.validationBinding,
+      reviewBinding: attestation.reviewBinding,
+      evidenceCompleteness: attestation.evidenceCompleteness,
+      digest: attestation.baselineDigest,
+      baselineVersion: attestation.baseline.baselineVersion,
+      entries: attestation.baseline._count.entries,
+      pinned, validationPassed: valPassed, reviewApproved: approved,
+      defectsTotal: retests, defectsResolved: retests - openDefects, defectsOpen: openDefects,
+      attestation: attestation.status,
+      limitations: attestation.limitations,
+    };
+  }
+
   const now = Date.now();
   return {
+    evidence,
     mission,
     stats: {
       criteriaTotal, criteriaPassed, tracesSatisfied, tracesTotal, toolCount,
