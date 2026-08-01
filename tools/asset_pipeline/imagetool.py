@@ -183,6 +183,19 @@ def main() -> int:
     ct.add_argument("--bottom-pct", type=float, default=2.0); ct.add_argument("--side-pct", type=float, default=2.5)
     ct.add_argument("--top-pct", type=float, default=1.5); ct.add_argument("--alpha", action="store_true")
 
+    sg = sub.add_parser("segment"); sg.add_argument("--path", required=True)
+    sg.add_argument("--threshold", type=float, default=0.10)
+    sg.add_argument("--min-confidence", type=float, default=0.35)
+    sg.add_argument("--min-bottom", type=float, default=1.5)
+    sg.add_argument("--min-top", type=float, default=1.0)
+    sg.add_argument("--min-side", type=float, default=2.0)
+    sg.add_argument("--mask-out", default=None); sg.add_argument("--overlay-out", default=None)
+
+    an = sub.add_parser("anchors"); an.add_argument("--path", required=True)
+    an.add_argument("--canvas-w", type=int, default=1600); an.add_argument("--canvas-h", type=int, default=600)
+    an.add_argument("--canon-left", type=int, default=0); an.add_argument("--canon-right", type=int, default=1599)
+    an.add_argument("--tol", type=int, default=2); an.add_argument("--min-confidence", type=float, default=0.5)
+
     c = sub.add_parser("contact"); c.add_argument("--out", required=True)
     c.add_argument("--tile-w", type=int, default=320); c.add_argument("--tile-h", type=int, default=240)
     c.add_argument("--cols", type=int, default=4); c.add_argument("--paths", nargs="+", required=True)
@@ -191,7 +204,7 @@ def main() -> int:
     try:
         result = {"normalize": op_normalize, "validate": op_validate, "bbox": op_bbox,
                   "phash": op_phash, "contact": op_contact, "distinct": op_distinct,
-                  "contain": op_contain}[a.cmd](a)
+                  "contain": op_contain, "segment": op_segment, "anchors": op_anchors}[a.cmd](a)
     except Exception as e:
         result = {"ok": False, "error": f"{type(e).__name__}: {e}"}
     print(json.dumps(result))
@@ -344,6 +357,128 @@ def op_contain(a) -> dict:
         "sha256": _sha256(out),
         "bottomGapPct": round((v.height - vb[3]) / v.height * 100, 3) if vb else None,
         "placedBottomPaddingPx": int(pad_b),
+    }
+
+SEGMENTATION_VERSION = "1.2.0"
+FLOOR_ANCHOR_SPEC_VERSION = "1.1.0"
+
+
+def _edge_map(im):
+    from PIL import ImageFilter
+    return im.convert("L").filter(ImageFilter.FIND_EDGES)
+
+
+def op_segment(a) -> dict:
+    """Night-scene building segmentation (cycle 2). Raw distance from the
+    foreground to the canvas bottom is NOT a crop test: pavement, shadows and
+    city glow all reach the bottom. Estimate the building mass from structured
+    edge energy plus a central-architecture prior instead."""
+    p = Path(a.path)
+    im = _open(p).convert("RGB")
+    w, h = im.size
+    px = _edge_map(im).load()
+
+    col = [sum(px[x, y] for y in range(0, h, 2)) for x in range(w)]
+    row = [sum(px[x, y] for x in range(0, w, 2)) for y in range(h)]
+    cmax, rmax = max(col) or 1, max(row) or 1
+    cols = [x for x in range(w) if col[x] >= cmax * a.threshold]
+    rows = [y for y in range(h) if row[y] >= rmax * a.threshold]
+
+    if not cols or not rows:
+        return {"ok": False, "assetKey": p.stem, "inputSha256": _sha256(p),
+                "validatorVersion": SEGMENTATION_VERSION, "segmentationConfidence": 0.0,
+                "status": "NEEDS_REVIEW",
+                "reason": "no structured edge mass detected - crop status not asserted"}
+
+    left, right, top, bottom = min(cols), max(cols), min(rows), max(rows)
+    cx = (left + right) / 2
+    dense = [x for x in cols if abs(x - cx) <= w * 0.48]
+    if dense:
+        left, right = min(dense), max(dense)
+
+    span = (right - left) * (bottom - top)
+    confidence = round(min(1.0, (len(cols) / w) * 0.5 + (len(rows) / h) * 0.5 + (span / (w * h)) * 0.4), 3)
+
+    res = {
+        "ok": True, "assetKey": p.stem, "inputSha256": _sha256(p),
+        "validatorVersion": SEGMENTATION_VERSION,
+        "segmentationConfidence": confidence,
+        "probableBuildingBounds": {"left": left, "top": top, "right": right, "bottom": bottom},
+        "topPaddingPercent": round(top / h * 100, 3),
+        "bottomPaddingPercent": round((h - bottom) / h * 100, 3),
+        "leftPaddingPercent": round(left / w * 100, 3),
+        "rightPaddingPercent": round((w - right) / w * 100, 3),
+        "croppedEdges": [], "evidenceImages": [],
+    }
+    for edge, val, need in (("bottom", res["bottomPaddingPercent"], a.min_bottom),
+                            ("top", res["topPaddingPercent"], a.min_top),
+                            ("left", res["leftPaddingPercent"], a.min_side),
+                            ("right", res["rightPaddingPercent"], a.min_side)):
+        if val < need:
+            res["croppedEdges"].append("%s padding %.3f%% < %.1f%% required" % (edge, val, need))
+
+    if confidence < a.min_confidence:
+        res["status"] = "NEEDS_REVIEW"
+        res["reason"] = "segmentation confidence %.3f < %.2f - deterministic crop status not asserted" % (confidence, a.min_confidence)
+    else:
+        res["status"] = "FAILED" if res["croppedEdges"] else "PASSED"
+
+    if a.mask_out:
+        mask = Image.new("L", (w, h), 0)
+        for x in range(left, right + 1):
+            for y in range(top, bottom + 1):
+                mask.putpixel((x, y), 255)
+        Path(a.mask_out).parent.mkdir(parents=True, exist_ok=True)
+        mask.save(a.mask_out, "WEBP", quality=80, method=4)
+        res["evidenceImages"].append(a.mask_out)
+    if a.overlay_out:
+        ov = im.convert("RGBA").copy()
+        band = Image.new("RGBA", (right - left + 1, bottom - top + 1), (58, 190, 249, 70))
+        ov.alpha_composite(band, (left, top))
+        Path(a.overlay_out).parent.mkdir(parents=True, exist_ok=True)
+        ov.convert("RGB").save(a.overlay_out, "WEBP", quality=85, method=4)
+        res["evidenceImages"].append(a.overlay_out)
+    return res
+
+
+def op_anchors(a) -> dict:
+    """FloorAnchorSpec v1.1.0 conformity from a structural edge profile, not
+    from arbitrary furniture/plant/glow bounding boxes."""
+    p = Path(a.path)
+    im = _open(p).convert("RGB")
+    w, h = im.size
+    px = _edge_map(im).load()
+
+    col = [sum(px[x, y] for y in range(0, h, 2)) for x in range(w)]
+    row = [sum(px[x, y] for x in range(0, w, 4)) for y in range(h)]
+    cmax, rmax = max(col) or 1, max(row) or 1
+
+    cols = [x for x in range(w) if col[x] >= cmax * 0.08]
+    left = min(cols) if cols else 0
+    right = max(cols) if cols else w - 1
+
+    lower = [(y, row[y]) for y in range(int(h * 0.55), h)]
+    slab_top = max(lower, key=lambda t: t[1])[0] if lower else int(h * 0.75)
+    wall_top = min((y for y in range(h) if row[y] >= rmax * 0.10), default=0)
+
+    confidence = round(min(1.0, (len(cols) / w) * 0.9 + 0.1), 3)
+    d_left, d_right = abs(left - a.canon_left), abs(right - a.canon_right)
+    findings = []
+    if w != a.canvas_w or h != a.canvas_h:
+        findings.append("canvas %dx%d != canonical %dx%d" % (w, h, a.canvas_w, a.canvas_h))
+    if d_left > a.tol:
+        findings.append("left anchor %d deviates %dpx from canonical %d (tol %d)" % (left, d_left, a.canon_left, a.tol))
+    if d_right > a.tol:
+        findings.append("right anchor %d deviates %dpx from canonical %d (tol %d)" % (right, d_right, a.canon_right, a.tol))
+
+    status = "NEEDS_REVIEW" if confidence < a.min_confidence else ("FAILED" if findings else "PASSED")
+    return {
+        "ok": True, "assetKey": p.stem, "inputSha256": _sha256(p),
+        "specVersion": FLOOR_ANCHOR_SPEC_VERSION,
+        "detected": {"leftX": left, "rightX": right, "wallTopY": wall_top,
+                     "slabTopY": slab_top, "slabBottomY": h - 1},
+        "deltas": {"leftX": d_left, "rightX": d_right},
+        "confidence": confidence, "findings": findings, "status": status,
     }
 
 

@@ -1818,3 +1818,199 @@ model AssetGenerationRecord {
   @@index([workPackageId, assetKey])
   @@index([sha256])
 }
+
+// ============================================================================
+// CANONICAL BASELINE ATTESTATION (correction cycle 2, §3)
+// Separates CURRENT baseline integrity from HISTORICAL provenance.
+// ============================================================================
+
+enum EvidenceCompletenessStatus {
+  COMPLETE
+  PARTIAL
+  MISSING
+}
+enum ProvenanceStatus {
+  NATIVE
+  RECONSTRUCTED
+  IMPORTED
+  UNKNOWN
+}
+enum BaselineIntegrityStatus {
+  NOT_ATTESTED
+  PASSED
+  FAILED
+}
+enum BindingStatus {
+  UNPINNED
+  PINNED
+  MISMATCHED
+}
+enum ReproductionStatus {
+  REPRODUCED
+  NOT_REPRODUCED
+  SUPERSEDED_VALIDATOR
+  SUPERSEDED_UNPINNED_REVIEW
+  PARTIALLY_REPRODUCED
+}
+enum ResolutionCategory {
+  VALIDATOR_CORRECTED
+  EVIDENCE_REBOUND
+  ASSET_CORRECTED
+  FALSE_POSITIVE_CONFIRMED
+  REMAINS_OPEN
+}
+
+model AssetCanonicalBaseline {
+  id                     String                  @id @default(cuid())
+  missionId              String
+  workPackageId          String
+  baselineVersion        String
+  repositoryCommit       String?
+  styleLockVersion       String
+  floorAnchorSpecVersion String
+  validatorVersion       String
+  baselineDigest         String?
+  status                 BaselineIntegrityStatus @default(NOT_ATTESTED)
+  createdByAgentRunId    String?
+  supersedesBaselineId   String?
+  createdAt              DateTime                @default(now())
+  finalizedAt            DateTime?
+
+  entries      AssetCanonicalEntry[]
+  validations  AssetValidationResult[]
+  reviewRuns   AssetReviewRun[]
+  attestations AssetBaselineAttestation[]
+  retests      DefectRetest[]
+
+  @@unique([workPackageId, baselineVersion])
+  @@index([missionId, status])
+}
+
+model AssetCanonicalEntry {
+  id                       String           @id @default(cuid())
+  baselineId               String
+  assetKey                 String
+  category                 String
+  canonicalPath            String
+  sha256                   String
+  fileSizeBytes            Int
+  width                    Int
+  height                   Int
+  format                   String
+  hasAlpha                 Boolean
+  provenanceStatus         ProvenanceStatus @default(RECONSTRUCTED)
+  sourceGenerationRecordId String?
+  validationResultId       String?
+  reviewResultId           String?
+  createdAt                DateTime         @default(now())
+
+  baseline      AssetCanonicalBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+  reviewResults AssetReviewResult[]
+
+  @@unique([baselineId, assetKey])
+  @@index([sha256])
+}
+
+model AssetValidationResult {
+  id                     String                @id @default(cuid())
+  missionId              String
+  workPackageId          String
+  baselineId             String
+  assetKey               String
+  inputSha256            String
+  validatorVersion       String
+  styleLockVersion       String
+  floorAnchorSpecVersion String?
+  status                 AssetValidationStatus @default(PENDING)
+  findings               String[]
+  metrics                Json?
+  startedAt              DateTime              @default(now())
+  completedAt            DateTime?
+
+  baseline AssetCanonicalBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+
+  @@unique([baselineId, assetKey, validatorVersion])
+  @@index([missionId, status])
+}
+
+model AssetReviewRun {
+  id               String    @id @default(cuid())
+  missionId        String
+  workPackageId    String
+  baselineId       String
+  agentRunId       String
+  reviewerIdentity String
+  reviewerModel    String?
+  status           String    @default("RUNNING")
+  inputDigest      String
+  supersedesRunId  String?
+  supersededReason String?
+  startedAt        DateTime  @default(now())
+  completedAt      DateTime?
+
+  baseline AssetCanonicalBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+  results  AssetReviewResult[]
+
+  @@index([missionId, status])
+}
+
+model AssetReviewResult {
+  id              String   @id @default(cuid())
+  reviewRunId     String
+  canonicalEntryId String
+  inputSha256     String
+  verdict         String
+  confidence      Float    @default(0)
+  criteria        String[]
+  findings        String[]
+  createdAt       DateTime @default(now())
+
+  reviewRun     AssetReviewRun      @relation(fields: [reviewRunId], references: [id], onDelete: Cascade)
+  canonicalEntry AssetCanonicalEntry @relation(fields: [canonicalEntryId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewRunId, canonicalEntryId])
+}
+
+model AssetBaselineAttestation {
+  id                    String                    @id @default(cuid())
+  baselineId            String
+  manifestSha256        String?
+  validationReportSha256 String?
+  reviewReportSha256    String?
+  evidenceIndexSha256   String?
+  baselineDigest        String
+  attestationAgentRunId String?
+  evidenceCompleteness  EvidenceCompletenessStatus @default(PARTIAL)
+  provenanceStatus      ProvenanceStatus           @default(RECONSTRUCTED)
+  baselineIntegrity     BaselineIntegrityStatus    @default(NOT_ATTESTED)
+  reviewBinding         BindingStatus              @default(UNPINNED)
+  validationBinding     BindingStatus              @default(UNPINNED)
+  status                String                     @default("PENDING")
+  limitations           String[]
+  createdAt             DateTime                   @default(now())
+
+  baseline AssetCanonicalBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+}
+
+model DefectRetest {
+  id                    String             @id @default(cuid())
+  defectId              String
+  baselineId            String
+  baselineDigest        String
+  assetKey              String?
+  inputSha256           String?
+  originalFinding       String             @db.Text
+  originalEvidence      String?            @db.Text
+  currentValidatorVersion String
+  currentReviewRunId    String?
+  reproductionStatus    ReproductionStatus
+  resolutionCategory    ResolutionCategory
+  result                String             @db.Text
+  evidence              Json?
+  retestedAt            DateTime           @default(now())
+
+  baseline AssetCanonicalBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+
+  @@unique([defectId, baselineId])
+  @@index([reproductionStatus])
+}
