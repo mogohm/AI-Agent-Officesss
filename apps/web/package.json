@@ -29,7 +29,8 @@
     "missions:status": "tsx scripts/missions/status.ts",
     "missions:seed": "tsx scripts/missions/reference-fidelity.ts",
     "missions:queue": "tsx scripts/missions/queue.ts",
-    "missions:verify": "vitest run tests/unit/delivery.test.ts tests/unit/delivery-slice.test.ts"
+    "missions:verify": "vitest run tests/unit/delivery.test.ts tests/unit/delivery-slice.test.ts",
+    "test:delivery-integration": "vitest run tests/integration/delivery-b0.integration.test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
