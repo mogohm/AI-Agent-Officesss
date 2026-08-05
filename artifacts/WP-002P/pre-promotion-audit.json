@@ -1,0 +1,74 @@
+{
+  "workPackage": "WP-002P",
+  "title": "Promote Canonical Office Assets to Production Public Paths",
+  "mission": "VISUAL-2026-001",
+  "status": "BLOCKED_CANONICAL_SOURCE",
+  "filesCopied": 0,
+  "repositoryBaseCommit": "33307880efad4eefb1edcef66b8592f4b22e9a69",
+  "masterHeadLocal": "33307880efad4eefb1edcef66b8592f4b22e9a69",
+  "masterHeadRemote": "33307880efad4eefb1edcef66b8592f4b22e9a69",
+  "wp003aCommits": ["c92e444fb7121206dfda9a2d5bf37344739ba13e", "33307880efad4eefb1edcef66b8592f4b22e9a69"],
+  "baseline": {
+    "version": "1.0.0",
+    "expectedDigest": "2c7a7093149616014708b3a5c24b7873b7f85aa3a9895f9feaf2d42c6505ce76",
+    "digestFromSource": null,
+    "digestFromDestinations": null,
+    "requiredAssetCount": 17
+  },
+  "gate": {
+    "sourceAssetsFound": { "required": 17, "actual": 0, "pass": false },
+    "sourceHashMatches": { "required": 17, "actual": 0, "pass": false },
+    "sourceValidationPassed": { "required": 17, "actual": null, "pass": false },
+    "sourceReviewApproved": { "required": 17, "actual": null, "pass": false },
+    "ambiguousSources": { "required": 0, "actual": 0, "pass": true }
+  },
+  "sourceOfTruthChannels": [
+    { "channel": "AssetCanonicalBaseline", "kind": "postgres", "reachable": false, "detail": "ports 5432/5433 closed; no .env present" },
+    { "channel": "AssetCanonicalEntry", "kind": "postgres", "reachable": false, "detail": "same" },
+    { "channel": "AssetBaselineAttestation", "kind": "postgres", "reachable": false, "detail": "same" },
+    { "channel": "generation-manifest.json", "kind": "file", "found": false, "detail": "full scan of D:\\ and C:\\Users\\Abegi" },
+    { "channel": "canonical-baseline-v1.0.0.json", "kind": "file", "found": false, "detail": "same scan" },
+    { "channel": "evidence-index-v2.json", "kind": "file", "found": false, "detail": "same scan" },
+    { "channel": "asset-plan.json", "kind": "file", "found": false, "detail": "same scan" },
+    { "channel": "asset-audit.json", "kind": "file", "found": false, "detail": "same scan" },
+    { "channel": "workspaces/missions", "kind": "directory", "found": false, "detail": "mission workspace does not exist on this host" }
+  ],
+  "destinations": {
+    "required": 17,
+    "present": 0,
+    "buildings": { "required": 4, "present": 0 },
+    "floors": { "required": 7, "present": 0 },
+    "workers": { "required": 6, "present": 0, "directoryExists": false }
+  },
+  "gitignoreAudit": {
+    "destinationsChecked": 17,
+    "destinationsIgnored": 0,
+    "changeRequired": false,
+    "ignoreSources": [
+      { "file": ".gitignore", "lines": 50, "matchesAnyDestination": false },
+      { "file": "apps/web/.gitignore", "lines": 18, "matchesAnyDestination": false },
+      { "file": ".git/info/exclude", "lines": 6, "matchesAnyDestination": false },
+      { "file": "core.excludesFile", "configured": false }
+    ],
+    "finding": "The rule that hid the WP-002 output is .gitignore:50 'workspaces/missions/', which ignores the mission worktree where the bytes were generated - not the production destinations. All 17 canonical paths are committable with a plain 'git add'."
+  },
+  "legacyContent": {
+    "mustRemainUntouched": true,
+    "deletions": 0,
+    "modifications": 0,
+    "note": "12 *-floor-band/base.webp under floors/<category>/ originate from dfb27ef (2026-07-13), pre-WP-002 legacy art. Not canonical baseline output; substitution is forbidden."
+  },
+  "expectedChangeSetWhenUnblocked": {
+    "binaryAdditions": 17,
+    "gitignoreChanges": 0,
+    "sourceCodeChanges": 0,
+    "legacyChanges": 0
+  },
+  "currentlyFailingTests": [
+    { "test": "14. every registered file exists", "file": "apps/web/tests/unit/visual-assets/office-assets.test.ts" },
+    { "test": "15. every registered file is a regular, non-empty file", "file": "apps/web/tests/unit/visual-assets/office-assets.test.ts" },
+    { "test": "5. audits all 17 canonical assets and finds zero byte changes", "file": "apps/web/tests/integration/wp003a.integration.test.ts" }
+  ],
+  "imageOperations": { "generations": 0, "edits": 0, "mutations": 0, "resizes": 0, "conversions": 0 },
+  "unblockRequirement": "The 17 approved WP-002 .webp files from the host where WP-002 executed. Verify with verify-wp002-assets.ts, which recomputes the baseline digest via the repository's own computeBaselineDigest and reports MATCH only for the attested byte set."
+}
