@@ -1,0 +1,23 @@
+{
+  "server": "next start (production build) on :3457",
+  "results": [
+    {"url":"/assets/office/buildings/company-a-building.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7197 0.088089},
+    {"url":"/assets/office/buildings/company-b-building.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7197 0.081104},
+    {"url":"/assets/office/buildings/company-c-building.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7197 0.067388},
+    {"url":"/assets/office/buildings/company-d-building.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7197 0.081392},
+    {"url":"/assets/office/floors/marketing-floor-empty.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7197 0.080740},
+    {"url":"/assets/office/floors/sales-floor-empty.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7193 0.069834},
+    {"url":"/assets/office/floors/hr-floor-empty.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7190 0.075653},
+    {"url":"/assets/office/floors/it-dev-floor-empty.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7194 0.022323},
+    {"url":"/assets/office/floors/design-meeting-floor-empty.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7202 0.067675},
+    {"url":"/assets/office/floors/lobby-support-floor-empty.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7201 0.052601},
+    {"url":"/assets/office/floors/server-floor-empty.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7194 0.082335},
+    {"url":"/assets/office/workers/default/idle.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7193 0.066562},
+    {"url":"/assets/office/workers/default/working.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7196 0.069060},
+    {"url":"/assets/office/workers/default/thinking.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7197 0.062370},
+    {"url":"/assets/office/workers/default/waiting-approval.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7205 0.059979},
+    {"url":"/assets/office/workers/default/error.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7194 0.070180},
+    {"url":"/assets/office/workers/default/offline.webp","status":404,"contentType":"text/html;","contentLength":charset=utf-8,"seconds":7196 0.056538}
+  ],
+  "http200": 0, "httpFailures": 17, "required200": 17
+}
