@@ -111,16 +111,11 @@ describe("2. WP-003A restricted write scope", () => {
   /** Brief scope only — deliberately NOT ANDed with the policy, so the gap stays visible. */
   const inBriefScope = (p: string) => WP003A_PREFIXES.some((w) => p.startsWith(w));
 
-  /** Every file this work package actually changed. */
+  /** Every file this work package touches, after consolidation to one module. */
   const DIFF = [
-    "apps/web/lib/visual-assets/index.ts",
     "apps/web/lib/visual-assets/office-assets.ts",
-    "apps/web/lib/visual-assets/resolve-company-building.ts",
-    "apps/web/lib/visual-assets/resolve-department-floor.ts",
-    "apps/web/lib/visual-assets/resolve-worker-state.ts",
-    "apps/web/lib/visual-assets/types.ts",
-    "apps/web/tests/unit/visual-assets/registry.test.ts",
-    "apps/web/tests/unit/visual-assets/resolvers.test.ts",
+    "apps/web/lib/visual-assets/index.ts",
+    "apps/web/tests/unit/visual-assets/office-assets.test.ts",
     "apps/web/tests/integration/wp003a.integration.test.ts",
   ];
   const HARD_FORBIDDEN = [
@@ -155,8 +150,7 @@ describe("2. WP-003A restricted write scope", () => {
   it("records which changed files policy v1.0.0 does NOT permit", () => {
     const rejected = DIFF.filter((p) => !classifyPath(p).allowed);
     expect(rejected).toEqual([
-      "apps/web/tests/unit/visual-assets/registry.test.ts",
-      "apps/web/tests/unit/visual-assets/resolvers.test.ts",
+      "apps/web/tests/unit/visual-assets/office-assets.test.ts",
       "apps/web/tests/integration/wp003a.integration.test.ts",
     ]);
     for (const p of rejected) {
