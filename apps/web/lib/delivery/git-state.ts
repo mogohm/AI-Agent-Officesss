@@ -16,11 +16,11 @@ import { execFile } from "node:child_process";
  */
 
 export type PushState =
-  | "NOT_PUSHED"        // no remote configured, or the remote branch lacks the commit
-  | "PUSHED"            // the remote tracking branch contains the commit
-  | "MASTER_UPDATED"    // the remote default branch contains the commit
-  | "PUSH_REJECTED"     // a push was attempted and failed, and master lacks the commit
-  | "REMOTE_UNVERIFIED"; // a remote exists but could not be read — assert nothing
+  | "LOCAL_ONLY" // no remote configured, or the remote branch lacks the commit
+  | "REMOTE_BRANCH_UPDATED" // the remote tracking branch contains the commit
+  | "MASTER_UPDATED" // the remote default branch contains the commit
+  | "PUSH_FAILED" // a push was attempted and failed, and master lacks the commit
+  | "UNKNOWN";  // a remote exists but could not be read — assert nothing
 
 export type GitObservation = {
   localBranch: string;
@@ -60,7 +60,7 @@ const SHA = /^[0-9a-f]{40}$/;
  *
  * Order matters. Containment in the public default branch is checked FIRST,
  * because a failed push does not un-publish a commit someone else already
- * merged — reporting PUSH_REJECTED there would understate public exposure.
+ * merged — reporting PUSH_FAILED there would understate public exposure.
  */
 export function classify(o: GitObservation, claimedState: PushState | null = null): GitStateReport {
   const short = o.localHead ? o.localHead.slice(0, 7) : "(no commit)";
@@ -73,17 +73,17 @@ export function classify(o: GitObservation, claimedState: PushState | null = nul
     summary = `${short} is contained in remote ${o.defaultBranch}`
       + (rejected ? " (a push was also attempted and rejected)" : "");
   } else if (rejected) {
-    state = "PUSH_REJECTED";
+    state = "PUSH_FAILED";
     summary = `push of ${short} was attempted and rejected`;
   } else if (o.remoteConfigured && !o.remoteVerified) {
     // never convert "could not verify" into "not on master"
-    state = "REMOTE_UNVERIFIED";
+    state = "UNKNOWN";
     summary = `${short}: remote ${o.defaultBranch} could not be read — public state unverified`;
   } else if (o.remoteBranch !== null && o.remoteHead !== null && o.ahead === 0) {
-    state = "PUSHED";
+    state = "REMOTE_BRANCH_UPDATED";
     summary = `${short} is on ${o.remoteBranch}; remote ${o.defaultBranch} does not contain it`;
   } else {
-    state = "NOT_PUSHED";
+    state = "LOCAL_ONLY";
     summary = o.ahead === null
       ? `${short} exists locally; divergence from the remote is unknown`
       : `${short} exists locally only (ahead ${o.ahead})`;

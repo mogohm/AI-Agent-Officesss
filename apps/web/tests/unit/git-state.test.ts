@@ -49,12 +49,12 @@ const onMaster = (over: Partial<GitObservation> = {}) => base({
 });
 
 describe("the six required regression cases", () => {
-  it("1. a local-only commit reports NOT_PUSHED", () => {
-    expect(classify(base()).state).toBe("NOT_PUSHED");
+  it("1. a local-only commit reports LOCAL_ONLY", () => {
+    expect(classify(base()).state).toBe("LOCAL_ONLY");
   });
-  it("2. a pushed work branch reports PUSHED", () => {
+  it("2. a pushed work branch reports REMOTE_BRANCH_UPDATED", () => {
     const r = classify(pushedBranch());
-    expect(r.state).toBe("PUSHED");
+    expect(r.state).toBe("REMOTE_BRANCH_UPDATED");
     expect(r.summary).toContain("does not contain it");
   });
   it("3. a commit merged into the remote default branch reports MASTER_UPDATED", () => {
@@ -63,21 +63,21 @@ describe("the six required regression cases", () => {
   it("4. a direct master update reports MASTER_UPDATED", () => {
     expect(classify(onMaster()).state).toBe("MASTER_UPDATED");
   });
-  it("5. a rejected push reports PUSH_REJECTED, never PUSHED", () => {
+  it("5. a rejected push reports PUSH_FAILED, never REMOTE_BRANCH_UPDATED", () => {
     const r = classify(pushedBranch({ pushAttempted: true, pushSucceeded: false }));
-    expect(r.state).toBe("PUSH_REJECTED");
+    expect(r.state).toBe("PUSH_FAILED");
   });
   it("6. a stale or dishonest claim can never override observed state", () => {
-    // the exact DLV-REPORT-001 shape: claim says NOT_PUSHED, git says master has it
-    const r = classify(onMaster(), "NOT_PUSHED");
+    // the exact DLV-REPORT-001 shape: claim says LOCAL_ONLY, git says master has it
+    const r = classify(onMaster(), "LOCAL_ONLY");
     expect(r.state).toBe("MASTER_UPDATED");
-    expect(r.claimedState).toBe("NOT_PUSHED");
+    expect(r.claimedState).toBe("LOCAL_ONLY");
     expect(r.contradictsClaim).toBe(true);
   });
   it("6b. every claim value is ignored for the same observation", () => {
-    const claims: PushState[] = ["NOT_PUSHED", "PUSHED", "MASTER_UPDATED", "PUSH_REJECTED", "REMOTE_UNVERIFIED"];
-    for (const c of claims) expect(classify(pushedBranch(), c).state, `claim=${c}`).toBe("PUSHED");
-    expect(classify(base(), "NOT_PUSHED").contradictsClaim).toBe(false);
+    const claims: PushState[] = ["LOCAL_ONLY", "REMOTE_BRANCH_UPDATED", "MASTER_UPDATED", "PUSH_FAILED", "UNKNOWN"];
+    for (const c of claims) expect(classify(pushedBranch(), c).state, `claim=${c}`).toBe("REMOTE_BRANCH_UPDATED");
+    expect(classify(base(), "LOCAL_ONLY").contradictsClaim).toBe(false);
   });
 });
 
@@ -89,22 +89,22 @@ describe("public exposure is never understated (B2)", () => {
     expect(r.summary).toContain("rejected");
     expect(r.summary).toContain("contained in remote master");
   });
-  it("PUSH_REJECTED still applies when master genuinely lacks the commit", () => {
+  it("PUSH_FAILED still applies when master genuinely lacks the commit", () => {
     expect(classify(pushedBranch({ pushAttempted: true, pushSucceeded: false })).state)
-      .toBe("PUSH_REJECTED");
+      .toBe("PUSH_FAILED");
   });
   it("pushAttempted with an unknown outcome is not treated as rejected", () => {
-    expect(classify(pushedBranch({ pushAttempted: true, pushSucceeded: null })).state).toBe("PUSHED");
+    expect(classify(pushedBranch({ pushAttempted: true, pushSucceeded: null })).state).toBe("REMOTE_BRANCH_UPDATED");
   });
 });
 
 describe("unverifiable remote is never reported as absence (B3)", () => {
-  it("a configured but unreadable remote reports REMOTE_UNVERIFIED", () => {
+  it("a configured but unreadable remote reports UNKNOWN", () => {
     const r = classify(base({
       remoteBranch: "origin/master", remoteHead: "aaa",
       remoteConfigured: true, remoteVerified: false, ahead: 0,
     }));
-    expect(r.state).toBe("REMOTE_UNVERIFIED");
+    expect(r.state).toBe("UNKNOWN");
     // must NOT assert the thing DLV-REPORT-001 got wrong
     expect(r.summary).not.toContain("does not contain");
     expect(r.summary).toContain("unverified");
@@ -115,20 +115,32 @@ describe("unverifiable remote is never reported as absence (B3)", () => {
     }));
     expect(r.state).not.toBe("MASTER_UPDATED");
   });
-  it("a repository with no remote at all is definitively NOT_PUSHED", () => {
-    expect(classify(base({ remoteConfigured: false })).state).toBe("NOT_PUSHED");
+  it("a repository with no remote at all is definitively LOCAL_ONLY", () => {
+    expect(classify(base({ remoteConfigured: false })).state).toBe("LOCAL_ONLY");
+  });
+
+  it("6c. an unknown remote state is never reported as a success state", () => {
+    const r = classify(base({
+      remoteConfigured: true, remoteVerified: false,
+      remoteBranch: "origin/master", remoteHead: "aaa", ahead: 0,
+    }));
+    expect(r.state).toBe("UNKNOWN");
+    for (const success of ["REMOTE_BRANCH_UPDATED", "MASTER_UPDATED"]) {
+      expect(r.state, `must not claim ${success}`).not.toBe(success);
+    }
+    expect(r.remoteVerified).toBe(false);
   });
 });
 
 describe("conservative degradation on unknown values", () => {
-  it("unknown divergence never reads as ahead-0 / PUSHED", () => {
+  it("unknown divergence never reads as ahead-0 / REMOTE_BRANCH_UPDATED", () => {
     const r = classify(pushedBranch({ ahead: null, behind: null }));
-    expect(r.state).toBe("NOT_PUSHED");
+    expect(r.state).toBe("LOCAL_ONLY");
     expect(r.summary).toContain("divergence from the remote is unknown");
   });
-  it("a commit ahead of its upstream is not reported as PUSHED", () => {
+  it("a commit ahead of its upstream is not reported as REMOTE_BRANCH_UPDATED", () => {
     for (const ahead of [1, 5, 99]) {
-      expect(classify(pushedBranch({ ahead })).state, `ahead=${ahead}`).toBe("NOT_PUSHED");
+      expect(classify(pushedBranch({ ahead })).state, `ahead=${ahead}`).toBe("LOCAL_ONLY");
     }
   });
 });
@@ -175,13 +187,13 @@ describe("readGitState against a real repository", () => {
   });
   afterAll(() => { if (tmp) fs.rmSync(tmp, { recursive: true, force: true }); });
 
-  it("reports NOT_PUSHED for a branch with no upstream, with divergence unknown", async () => {
+  it("reports LOCAL_ONLY for a branch with no upstream, with divergence unknown", async () => {
     g(work, "checkout", "-q", "-b", "feature");
     fs.writeFileSync(path.join(work, "b0.txt"), "0\n");
     g(work, "add", "-A"); g(work, "commit", "-q", "-m", "feature 0");
 
     const r = classify(await readGitState({ cwd: work, remote: "origin" }));
-    expect(r.state).toBe("NOT_PUSHED");
+    expect(r.state).toBe("LOCAL_ONLY");
     expect(r.remoteBranch).toBeNull();
     // no upstream means divergence is genuinely unknown, not zero
     expect(r.ahead).toBeNull();
@@ -189,10 +201,10 @@ describe("readGitState against a real repository", () => {
     expect(r.remoteVerified).toBe(true);
   });
 
-  it("reports PUSHED once the work branch is on the remote", async () => {
+  it("reports REMOTE_BRANCH_UPDATED once the work branch is on the remote", async () => {
     g(work, "push", "-q", "-u", "origin", "feature");
     const r = classify(await readGitState({ cwd: work, remote: "origin" }));
-    expect(r.state).toBe("PUSHED");
+    expect(r.state).toBe("REMOTE_BRANCH_UPDATED");
     expect(r.ahead).toBe(0);
     expect(r.behind).toBe(0);
     expect(r.remoteBranch).toContain("feature");
@@ -204,10 +216,10 @@ describe("readGitState against a real repository", () => {
       g(work, "add", "-A"); g(work, "commit", "-q", "-m", `feature ${n}`);
     }
     const r = classify(await readGitState({ cwd: work, remote: "origin" }));
-    // a swapped parse would report behind=3 / ahead=0 and wrongly say PUSHED
+    // a swapped parse would report behind=3 / ahead=0 and wrongly say REMOTE_BRANCH_UPDATED
     expect(r.ahead).toBe(3);
     expect(r.behind).toBe(0);
-    expect(r.state).toBe("NOT_PUSHED");
+    expect(r.state).toBe("LOCAL_ONLY");
     g(work, "push", "-q", "origin", "feature");
   });
 
@@ -238,14 +250,14 @@ describe("readGitState against a real repository", () => {
     expect(classify(observed).state).toBe("MASTER_UPDATED");
   });
 
-  it("reports REMOTE_UNVERIFIED — not absence — when the remote is unreachable", async () => {
+  it("reports UNKNOWN — not absence — when the remote is unreachable", async () => {
     const broken = path.join(tmp, "broken");
     execFileSync("git", ["clone", "-q", origin, broken], { windowsHide: true });
     g(broken, "remote", "set-url", "origin", path.join(tmp, "does-not-exist.git"));
     const r = classify(await readGitState({ cwd: broken, remote: "origin" }));
     expect(r.remoteVerified).toBe(false);
     expect(r.remoteConfigured).toBe(true);
-    expect(r.state).toBe("REMOTE_UNVERIFIED");
+    expect(r.state).toBe("UNKNOWN");
     expect(r.summary).not.toContain("does not contain");
   });
 
@@ -255,7 +267,7 @@ describe("readGitState against a real repository", () => {
     execFileSync("git", ["init", "-q", "-b", "master", bare], { windowsHide: true });
     const r = classify(await readGitState({ cwd: bare, remote: "origin" }));
     expect(r.remoteConfigured).toBe(false);
-    expect(r.state).toBe("NOT_PUSHED");
+    expect(r.state).toBe("LOCAL_ONLY");
     expect(typeof r.summary).toBe("string");
   });
 });
