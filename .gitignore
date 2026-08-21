@@ -48,3 +48,6 @@ references/*
 
 # mission workspaces (clones + worktrees are local execution state)
 workspaces/missions/
+
+# local portable postgres (dev only, ~330MB)
+.localdb/
