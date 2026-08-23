@@ -1,0 +1,112 @@
+{
+  "baselineVersion": "1.1.0",
+  "parentHistoricalBaseline": "1.0.0",
+  "recoveryDecision": "VISUAL-2026-001-ASSET-RECOVERY-001",
+  "digest": "27f54147b0e8c8c0309a218e54c61c970c8edb4fc272319fbbdb58184df878af",
+  "assetCount": 17,
+  "createdAt": "2026-08-23T05:47:29.517Z",
+  "assets": [
+    {
+      "assetKey": "company-a-building",
+      "destinationPath": "apps/web/public/assets/office/buildings/company-a-building.webp",
+      "sha256": "7f6b615078419f21d3e5e8aa5bae7182497b404bf121f3c73de474f88c88bcf9",
+      "fileSizeBytes": 171308
+    },
+    {
+      "assetKey": "company-b-building",
+      "destinationPath": "apps/web/public/assets/office/buildings/company-b-building.webp",
+      "sha256": "aac3400661ed9c79fbd781393b5d7febf3e411c2478ed9e02410411ddac27d6a",
+      "fileSizeBytes": 364084
+    },
+    {
+      "assetKey": "company-c-building",
+      "destinationPath": "apps/web/public/assets/office/buildings/company-c-building.webp",
+      "sha256": "f1f23b4c293637d5a2f5abfa89886647dc1ae4dca652c82595f665a9ad90f7f1",
+      "fileSizeBytes": 287266
+    },
+    {
+      "assetKey": "company-d-building",
+      "destinationPath": "apps/web/public/assets/office/buildings/company-d-building.webp",
+      "sha256": "fcd667628224309c3b43e5dc68350055a6dee765f82a98172bfc0e5f12f94be2",
+      "fileSizeBytes": 146336
+    },
+    {
+      "assetKey": "marketing-floor-empty",
+      "destinationPath": "apps/web/public/assets/office/floors/marketing-floor-empty.webp",
+      "sha256": "bf9e60494b8b9c97c77a2fa3fe2326e9a0b8fe50e44557c95441ba8aac18b546",
+      "fileSizeBytes": 63286
+    },
+    {
+      "assetKey": "sales-floor-empty",
+      "destinationPath": "apps/web/public/assets/office/floors/sales-floor-empty.webp",
+      "sha256": "1d7f9590fffaf108597b5d08a899aa154fdcd0bd8ce6cc1b7efe452c5295a441",
+      "fileSizeBytes": 74060
+    },
+    {
+      "assetKey": "hr-floor-empty",
+      "destinationPath": "apps/web/public/assets/office/floors/hr-floor-empty.webp",
+      "sha256": "04094782434aeeea1e07057a51dbf646e4bbc3ab8ecabbb25e87904f8b3ca09e",
+      "fileSizeBytes": 219152
+    },
+    {
+      "assetKey": "it-dev-floor-empty",
+      "destinationPath": "apps/web/public/assets/office/floors/it-dev-floor-empty.webp",
+      "sha256": "4219d7dd42e9149b2bdb784a3fcc0386aaa6bdc15056db0fc0460e0c7c64a8a9",
+      "fileSizeBytes": 54400
+    },
+    {
+      "assetKey": "design-meeting-floor-empty",
+      "destinationPath": "apps/web/public/assets/office/floors/design-meeting-floor-empty.webp",
+      "sha256": "c0f94f533536fb89847fccc656b400696379130f38f2e5273ac53f3826798b06",
+      "fileSizeBytes": 103190
+    },
+    {
+      "assetKey": "lobby-support-floor-empty",
+      "destinationPath": "apps/web/public/assets/office/floors/lobby-support-floor-empty.webp",
+      "sha256": "a1bd63076c9f9beaa1d606ca50bce5b1c92230be859acfa79ed795146fac78dc",
+      "fileSizeBytes": 88168
+    },
+    {
+      "assetKey": "server-floor-empty",
+      "destinationPath": "apps/web/public/assets/office/floors/server-floor-empty.webp",
+      "sha256": "28af9dc6376e21c8d4586e5cc8bf4d4a69f0d584a5647b21cd542fe344796f36",
+      "fileSizeBytes": 40842
+    },
+    {
+      "assetKey": "idle",
+      "destinationPath": "apps/web/public/assets/office/workers/default/idle.webp",
+      "sha256": "c4654f2ecb17d7f03ca9dd6d5dc8e303240def78a25f8eb81e84d3c8e354bd9e",
+      "fileSizeBytes": 129940
+    },
+    {
+      "assetKey": "working",
+      "destinationPath": "apps/web/public/assets/office/workers/default/working.webp",
+      "sha256": "2014702e1be753fe9a30cbb6e9d64572246a433f1ab6ed4da54088541c030ee7",
+      "fileSizeBytes": 131578
+    },
+    {
+      "assetKey": "thinking",
+      "destinationPath": "apps/web/public/assets/office/workers/default/thinking.webp",
+      "sha256": "6e38272fd0ec62a53ae287723660c7ad69faeb6d37f0207ca574aadd2473dfdc",
+      "fileSizeBytes": 148282
+    },
+    {
+      "assetKey": "waiting-approval",
+      "destinationPath": "apps/web/public/assets/office/workers/default/waiting-approval.webp",
+      "sha256": "11e3151150c0f07a0ab5774f8fea468acc5d60a90d6fc27ebe83baf6034e9ad0",
+      "fileSizeBytes": 136514
+    },
+    {
+      "assetKey": "error",
+      "destinationPath": "apps/web/public/assets/office/workers/default/error.webp",
+      "sha256": "c0184da101153f5165d0b50f370b273e75409741b31735873ff551a2f7f255fc",
+      "fileSizeBytes": 136064
+    },
+    {
+      "assetKey": "offline",
+      "destinationPath": "apps/web/public/assets/office/workers/default/offline.webp",
+      "sha256": "51ffba28d9971494106eb39c8ada50304c0c2e6473f29f783e56828591afd6f0",
+      "fileSizeBytes": 116394
+    }
+  ]
+}

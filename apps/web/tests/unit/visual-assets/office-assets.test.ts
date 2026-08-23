@@ -400,8 +400,8 @@ describe("approved path validation (50-60)", () => {
 describe("baseline metadata (61-65)", () => {
   it("61-63. version, digest and counts match WP-002", () => {
     const m = getCanonicalOfficeAssetMetadata();
-    expect(m.version).toBe("1.0.0");
-    expect(m.digest).toBe("2c7a7093149616014708b3a5c24b7873b7f85aa3a9895f9feaf2d42c6505ce76");
+    expect(m.version).toBe("1.1.0");
+    expect(m.digest).toBe("27f54147b0e8c8c0309a218e54c61c970c8edb4fc272319fbbdb58184df878af");
     expect(m.digest).toMatch(/^[0-9a-f]{64}$/);
     expect(m.assetCount).toBe(17);
     expect(m.buildingCount + m.floorCount + m.workerStateCount).toBe(m.assetCount);

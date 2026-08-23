@@ -71,8 +71,8 @@ export type CanonicalOfficeAssetMetadata = {
 // ---------------------------------------------------------------- registry
 
 export const OFFICE_ASSET_BASELINE = Object.freeze({
-  version: "1.0.0",
-  digest: "2c7a7093149616014708b3a5c24b7873b7f85aa3a9895f9feaf2d42c6505ce76",
+  version: "1.1.0",
+  digest: "27f54147b0e8c8c0309a218e54c61c970c8edb4fc272319fbbdb58184df878af",
   assetCount: 17,
 } as const);
 

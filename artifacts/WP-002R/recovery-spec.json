@@ -24,8 +24,8 @@
       "productionPath": "apps/web/public/assets/office/buildings/company-a-building.webp",
       "publicUrl": "/assets/office/buildings/company-a-building.webp",
       "width": 1024,
-      "height": 768,
-      "aspect": "4:3",
+      "height": 1024,
+      "aspect": "1:1",
       "format": "webp",
       "requiresAlpha": false,
       "mustContainNoPeople": true,
@@ -39,8 +39,9 @@
         "full base visible",
         "clean silhouette",
         "readable at dashboard card scale",
-        "object-fit: contain — must not rely on cropping",
-        "visually distinct from the other three variants; not a recolour"
+        "visually distinct from the other three variants; not a recolour",
+        "canvas is 1:1 to match the square generation orientation - no pillarbox, no letterbox bars",
+        "the full ground/pavement plate must be inside the frame with clear margin on all sides"
       ]
     },
     {
@@ -51,8 +52,8 @@
       "productionPath": "apps/web/public/assets/office/buildings/company-b-building.webp",
       "publicUrl": "/assets/office/buildings/company-b-building.webp",
       "width": 1024,
-      "height": 768,
-      "aspect": "4:3",
+      "height": 1024,
+      "aspect": "1:1",
       "format": "webp",
       "requiresAlpha": false,
       "mustContainNoPeople": true,
@@ -66,8 +67,9 @@
         "full base visible",
         "clean silhouette",
         "readable at dashboard card scale",
-        "object-fit: contain — must not rely on cropping",
-        "visually distinct from the other three variants; not a recolour"
+        "visually distinct from the other three variants; not a recolour",
+        "canvas is 1:1 to match the square generation orientation - no pillarbox, no letterbox bars",
+        "the full ground/pavement plate must be inside the frame with clear margin on all sides"
       ]
     },
     {
@@ -78,8 +80,8 @@
       "productionPath": "apps/web/public/assets/office/buildings/company-c-building.webp",
       "publicUrl": "/assets/office/buildings/company-c-building.webp",
       "width": 1024,
-      "height": 768,
-      "aspect": "4:3",
+      "height": 1024,
+      "aspect": "1:1",
       "format": "webp",
       "requiresAlpha": false,
       "mustContainNoPeople": true,
@@ -93,8 +95,9 @@
         "full base visible",
         "clean silhouette",
         "readable at dashboard card scale",
-        "object-fit: contain — must not rely on cropping",
-        "visually distinct from the other three variants; not a recolour"
+        "visually distinct from the other three variants; not a recolour",
+        "canvas is 1:1 to match the square generation orientation - no pillarbox, no letterbox bars",
+        "the full ground/pavement plate must be inside the frame with clear margin on all sides"
       ]
     },
     {
@@ -105,8 +108,8 @@
       "productionPath": "apps/web/public/assets/office/buildings/company-d-building.webp",
       "publicUrl": "/assets/office/buildings/company-d-building.webp",
       "width": 1024,
-      "height": 768,
-      "aspect": "4:3",
+      "height": 1024,
+      "aspect": "1:1",
       "format": "webp",
       "requiresAlpha": false,
       "mustContainNoPeople": true,
@@ -120,8 +123,9 @@
         "full base visible",
         "clean silhouette",
         "readable at dashboard card scale",
-        "object-fit: contain — must not rely on cropping",
-        "visually distinct from the other three variants; not a recolour"
+        "visually distinct from the other three variants; not a recolour",
+        "canvas is 1:1 to match the square generation orientation - no pillarbox, no letterbox bars",
+        "the full ground/pavement plate must be inside the frame with clear margin on all sides"
       ]
     },
     {

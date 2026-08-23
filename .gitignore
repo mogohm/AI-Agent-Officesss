@@ -51,3 +51,6 @@ workspaces/missions/
 
 # local portable postgres (dev only, ~330MB)
 .localdb/
+
+# WP-002R generation staging (intermediates)
+artifacts/WP-002R/staging/
