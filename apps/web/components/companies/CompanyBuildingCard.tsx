@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Layers, Bot, Briefcase, Settings } from "lucide-react";
-import { buildingImage, companyBuildingIndex } from "@/lib/office-assets";
+import { CompanyBuildingPreview } from "./CompanyBuildingPreview";
 
 export type CompanyCardData = {
   id: string;
@@ -8,6 +8,7 @@ export type CompanyCardData = {
   legalName?: string | null;
   description?: string | null;
   status: string;
+  themeKey?: string | null;
   departments: number;
   workers: number;
   activeTasks?: number;
@@ -21,21 +22,7 @@ export function companyStatus(s: string) {
     : { dot: "#657A91", label: s.toLowerCase() };
 }
 
-export function BuildingPreview({ id, className, sizes = "(max-width:768px) 100vw, 25vw" }: { id: string; className?: string; sizes?: string }) {
-  // object-contain: the ENTIRE building silhouette stays visible, base never cropped.
-  return (
-    <span className={`relative block overflow-hidden bg-gradient-to-b from-[#0d1a2e] to-[#0a1424] ${className ?? ""}`}>
-      <img
-        src={buildingImage(companyBuildingIndex(id))}
-        alt=""
-        aria-hidden
-        sizes={sizes}
-        className="h-full w-full object-contain object-center p-1 transition duration-500 group-hover:scale-[1.03]"
-        loading="lazy"
-      />
-    </span>
-  );
-}
+export { CompanyBuildingPreview as BuildingPreview };
 
 function StatCell({ icon: Icon, n, l }: { icon: typeof Layers; n: number; l: string }) {
   return (
@@ -67,7 +54,7 @@ export function CompanyBuildingCard({ company, selected }: { company: CompanyCar
     <div className={`group flex flex-col overflow-hidden rounded-xl border bg-[#0E1B2D] transition ${selected ? "border-[#F0B84B] ring-1 ring-[#F0B84B]/50" : "border-[#244768] hover:border-[#3ABEF9]/60"}`}>
       {/* fixed 4:3-ish preview height keeps 4 cards above the fold at 1080p */}
       <Link href={`/companies/${company.id}`} className="relative block h-[168px]">
-        <BuildingPreview id={company.id} className="absolute inset-0" />
+        <CompanyBuildingPreview id={company.id} name={company.name} themeKey={company.themeKey} className="absolute inset-0" />
         <StatusChip status={company.status} className="absolute right-2 top-2 bg-black/55 backdrop-blur" />
       </Link>
 
@@ -97,7 +84,7 @@ export function CompanyBuildingCardCompact({ company }: { company: CompanyCardDa
   return (
     <div className="group flex gap-2.5 rounded-xl border border-[#244768] bg-[#0E1B2D] p-2.5 transition hover:border-[#3ABEF9]/60">
       <Link href={`/companies/${company.id}`} className="shrink-0">
-        <BuildingPreview id={company.id} className="h-[76px] w-[76px] rounded-lg" sizes="76px" />
+        <CompanyBuildingPreview id={company.id} name={company.name} themeKey={company.themeKey} className="h-[76px] w-[76px] rounded-lg" sizes="76px" />
       </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex items-start justify-between gap-2">

@@ -75,6 +75,8 @@ export async function getCompanyOverview(showTestData = false) {
         slug: c.slug,
         name: c.name,
         legalName: c.legalName,
+        description: c.description,
+        themeKey: c.themeKey,
         status: c.status,
         departments: c._count.departments,
         workers: c._count.workers,
