@@ -84,7 +84,7 @@ export function CompanyBuildingCardCompact({ company }: { company: CompanyCardDa
   return (
     <div className="group flex gap-2.5 rounded-xl border border-[#244768] bg-[#0E1B2D] p-2.5 transition hover:border-[#3ABEF9]/60">
       <Link href={`/companies/${company.id}`} className="shrink-0">
-        <CompanyBuildingPreview id={company.id} name={company.name} themeKey={company.themeKey} className="h-[76px] w-[76px] rounded-lg" sizes="76px" />
+        <CompanyBuildingPreview id={company.id} name={company.name} themeKey={company.themeKey} className="relative h-[76px] w-[76px] rounded-lg" sizes="76px" />
       </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex items-start justify-between gap-2">

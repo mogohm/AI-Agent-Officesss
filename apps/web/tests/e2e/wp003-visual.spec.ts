@@ -1,0 +1,100 @@
+import { test, expect, type Page } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
+
+/**
+ * WP-003B / WP-003C visual + functional verification.
+ *
+ * Real authenticated session against real database records — no fixtures, no
+ * mocked routes. Screenshots are captured from the live render so they are
+ * evidence, not decoration.
+ */
+
+const VIEWPORTS = [
+  { name: "1920x1080", width: 1920, height: 1080 },
+  { name: "1600x900", width: 1600, height: 900 },
+  { name: "1440x900", width: 1440, height: 900 },
+  { name: "390x844", width: 390, height: 844 },
+];
+
+const OUT = path.resolve(__dirname, "../../../../artifacts/WP-003B/screenshots");
+
+async function login(page: Page) {
+  await page.goto("/login");
+  await page.locator("#email").fill("owner@demo.local");
+  await page.locator("#password").fill("demo1234");
+  await page.locator('form button[type="submit"]').first().click();
+  await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 45_000 });
+}
+
+test.describe("WP-003 dashboard and companies", () => {
+  test.beforeAll(() => fs.mkdirSync(OUT, { recursive: true }));
+
+  for (const vp of VIEWPORTS) {
+    test(`dashboard renders canonical buildings at ${vp.name}`, async ({ page }) => {
+      const consoleErrors: string[] = [];
+      const failedRequests: string[] = [];
+      page.on("console", (m) => { if (m.type() === "error") consoleErrors.push(m.text()); });
+      page.on("requestfailed", (r) => failedRequests.push(r.url()));
+
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await login(page);
+      await page.goto("/dashboard");
+      await page.waitForLoadState("networkidle");
+
+      // every building image must be a canonical registry path and actually load
+      const imgs = page.locator('img[src^="/assets/office/buildings/"]');
+      const count = await imgs.count();
+      expect(count, "canonical building images on dashboard").toBeGreaterThan(0);
+
+      for (let i = 0; i < count; i++) {
+        const el = imgs.nth(i);
+        const natural = await el.evaluate((n) => (n as HTMLImageElement).naturalWidth);
+        expect(natural, `image ${i} must have loaded`).toBeGreaterThan(0);
+        // object-contain is required: cover would crop the building base
+        const fit = await el.evaluate((n) => getComputedStyle(n).objectFit);
+        expect(fit, `image ${i} object-fit`).toBe("contain");
+      }
+
+      // no legacy index-mapped art may remain
+      expect(await page.locator('img[src*="/companies/building-"]').count()).toBe(0);
+
+      // no horizontal overflow at any viewport
+      const overflow = await page.evaluate(() =>
+        document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+      expect(overflow, "horizontal overflow").toBe(false);
+
+      await page.screenshot({ path: path.join(OUT, `dashboard-${vp.name}.png`), fullPage: false });
+
+      const assetFailures = failedRequests.filter((u) => u.includes("/assets/office/"));
+      expect(assetFailures, "failed canonical asset requests").toEqual([]);
+      expect(consoleErrors.filter((e) => !/favicon|devtools/i.test(e)), "console errors").toEqual([]);
+    });
+  }
+
+  test("companies page reuses the same canonical card system", async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await login(page);
+    await page.goto("/companies");
+    await page.waitForLoadState("networkidle");
+    const imgs = page.locator('img[src^="/assets/office/buildings/"]');
+    expect(await imgs.count(), "canonical buildings on companies page").toBeGreaterThan(0);
+    fs.mkdirSync(path.resolve(OUT, "../../WP-003C/screenshots"), { recursive: true });
+    await page.screenshot({ path: path.resolve(OUT, "../../WP-003C/screenshots/companies-1920x1080.png") });
+  });
+
+  test("company variants are deterministic across reloads", async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await login(page);
+    const read = async () => {
+      await page.goto("/dashboard");
+      await page.waitForLoadState("networkidle");
+      return page.locator("[data-variant]").evaluateAll((ns) =>
+        ns.map((n) => (n as HTMLElement).dataset.variant).join(","));
+    };
+    const first = await read();
+    const second = await read();
+    expect(first.length, "variants present").toBeGreaterThan(0);
+    expect(second, "variant assignment must be stable").toBe(first);
+  });
+});

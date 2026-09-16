@@ -26,7 +26,7 @@ export function CompanyBuildingPreview({
 
   return (
     <span
-      className={`relative block overflow-hidden bg-gradient-to-b from-[#0d1a2e] to-[#0a1424] ${className ?? ""}`}
+      className={`block overflow-hidden bg-gradient-to-b from-[#0d1a2e] to-[#0a1424] ${className ?? ""}`}
       data-variant={resolved.variant}
       data-resolution={resolved.resolutionSource}
     >
@@ -41,7 +41,7 @@ export function CompanyBuildingPreview({
           alt={`อาคารสำนักงานของ ${name}`}
           sizes={sizes}
           onError={() => setBroken(true)}
-          className="h-full w-full object-contain object-center p-1 transition duration-500 group-hover:scale-[1.03]"
+          className="absolute inset-0 h-full w-full object-contain object-center p-1 transition duration-500 group-hover:scale-[1.03]"
           loading="lazy"
         />
       )}
