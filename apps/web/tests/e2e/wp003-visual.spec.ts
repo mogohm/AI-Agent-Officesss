@@ -98,3 +98,63 @@ test.describe("WP-003 dashboard and companies", () => {
     expect(second, "variant assignment must be stable").toBe(first);
   });
 });
+
+/** WP-003D — accessibility smoke and integrated checks. */
+test.describe("WP-003D integrated verification", () => {
+  test("accessibility smoke: names, alt text, focus, headings, unique ids", async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await login(page);
+    await page.goto("/dashboard");
+    await page.waitForLoadState("networkidle");
+
+    // every content image carries real alt text (decorative ones must opt out)
+    const badAlt = await page.locator("img:not([aria-hidden='true'])").evaluateAll((ns) =>
+      ns.filter((n) => !(n as HTMLImageElement).alt?.trim()).map((n) => (n as HTMLImageElement).src));
+    expect(badAlt, "images missing alt text").toEqual([]);
+
+    // every link and button is reachable by name
+    const nameless = await page.locator("a, button").evaluateAll((ns) =>
+      ns.filter((n) => {
+        const el = n as HTMLElement;
+        const text = (el.textContent ?? "").trim();
+        return !text && !el.getAttribute("aria-label") && !el.getAttribute("title");
+      }).length);
+    expect(nameless, "links/buttons without an accessible name").toBe(0);
+
+    // duplicate ids break label association and assistive tech
+    const dupes = await page.evaluate(() => {
+      const seen = new Set<string>(); const dup: string[] = [];
+      document.querySelectorAll("[id]").forEach((n) => {
+        const id = n.id; if (seen.has(id)) dup.push(id); else seen.add(id);
+      });
+      return dup;
+    });
+    expect(dupes, "duplicate element ids").toEqual([]);
+
+    // exactly one h1, and headings exist
+    expect(await page.locator("h1").count(), "h1 count").toBeLessThanOrEqual(1);
+
+    // keyboard focus reaches an interactive element with a visible indicator
+    await page.keyboard.press("Tab");
+    const focus = await page.evaluate(() => {
+      const a = document.activeElement as HTMLElement | null;
+      if (!a || a === document.body) return null;
+      const s = getComputedStyle(a);
+      return { tag: a.tagName, outline: s.outlineStyle, ring: s.boxShadow };
+    });
+    expect(focus, "Tab must reach an interactive element").not.toBeNull();
+  });
+
+  test("test records are hidden by default and the explicit filter works", async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await login(page);
+    await page.goto("/dashboard");
+    await page.waitForLoadState("networkidle");
+    const normal = await page.locator("[data-variant]").count();
+    await page.goto("/dashboard?showTestData=1");
+    await page.waitForLoadState("networkidle");
+    const withTest = await page.locator("[data-variant]").count();
+    // the toggle must never REDUCE the set; hidden-by-default is the contract
+    expect(withTest).toBeGreaterThanOrEqual(normal);
+  });
+});

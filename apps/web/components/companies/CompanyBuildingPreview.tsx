@@ -13,13 +13,12 @@ import { resolveCompanyBuilding } from "@/lib/visual-assets";
  * roof to base. `cover` would crop the base and is forbidden by the spec.
  */
 export function CompanyBuildingPreview({
-  id, name, themeKey, className, sizes = "(max-width:768px) 100vw, 25vw",
+  id, name, themeKey, className,
 }: {
   id: string;
   name: string;
   themeKey?: string | null;
   className?: string;
-  sizes?: string;
 }) {
   const [broken, setBroken] = useState(false);
   const resolved = resolveCompanyBuilding({ id, visualTheme: themeKey ?? null });
@@ -39,10 +38,17 @@ export function CompanyBuildingPreview({
         <img
           src={resolved.src}
           alt={`อาคารสำนักงานของ ${name}`}
-          sizes={sizes}
           onError={() => setBroken(true)}
+          // intrinsic size reserves the box so the card cannot shift when the
+          // art decodes; the source is a 1024x1024 square
+          width={1024}
+          height={1024}
+          // this is the card's primary visual and sits above the fold - lazily
+          // loading it delays the page's main content and lets the request be
+          // cancelled on viewport change
+          loading="eager"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-contain object-center p-1 transition duration-500 group-hover:scale-[1.03]"
-          loading="lazy"
         />
       )}
     </span>
