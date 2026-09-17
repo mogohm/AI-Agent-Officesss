@@ -68,7 +68,7 @@ export default async function CompanyPage({ params }: { params: { companyId: str
                 <OfficeTower
                   companyId={company.id}
                   companyName={company.name}
-                  departments={departments.map((d) => ({ id: d.id, name: d.name, floorOrder: d.floorOrder, floorType: d.floorType, themeColor: d.themeColor }))}
+                  departments={departments.map((d) => ({ id: d.id, name: d.name, slug: d.slug, floorOrder: d.floorOrder, floorType: d.floorType, themeColor: d.themeColor }))}
                   workers={workers.map((w) => ({ id: w.id, name: w.name, departmentId: w.departmentId, runtimeStatus: w.runtimeStatus, avatarKey: w.avatarKey, role: w.role }))}
                 />
               </div>
