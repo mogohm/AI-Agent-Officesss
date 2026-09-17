@@ -49,11 +49,12 @@ function StatusChip({ status, className }: { status: string; className?: string 
  * Full card (Dashboard). Building preview ≈4:3 and ~55% of card height; the
  * whole building is visible (contain, never cropped). Counts are real DB values.
  */
-export function CompanyBuildingCard({ company, selected }: { company: CompanyCardData; selected?: boolean }) {
+export function CompanyBuildingCard({ company, selected, showSettings }: { company: CompanyCardData; selected?: boolean; showSettings?: boolean }) {
   return (
     <div className={`group flex flex-col overflow-hidden rounded-xl border bg-[#0E1B2D] transition ${selected ? "border-[#F0B84B] ring-1 ring-[#F0B84B]/50" : "border-[#244768] hover:border-[#3ABEF9]/60"}`}>
-      {/* fixed 4:3-ish preview height keeps 4 cards above the fold at 1080p */}
-      <Link href={`/companies/${company.id}`} className="relative block h-[168px]">
+      {/* square frame matches the 1024x1024 source art: the building fills the card
+          width instead of sitting in 60% empty gradient with visible seams */}
+      <Link href={`/companies/${company.id}`} className="relative block aspect-square">
         <CompanyBuildingPreview id={company.id} name={company.name} themeKey={company.themeKey} className="absolute inset-0" />
         <StatusChip status={company.status} className="absolute right-2 top-2 bg-black/55 backdrop-blur" />
       </Link>
@@ -68,9 +69,17 @@ export function CompanyBuildingCard({ company, selected }: { company: CompanyCar
           <StatCell icon={Bot} n={company.workers} l="workers" />
           <StatCell icon={Briefcase} n={company.activeTasks ?? company.projects ?? 0} l={company.activeTasks !== undefined ? "งาน" : "โปรเจกต์"} />
         </div>
-        <Link href={`/companies/${company.id}`} className="mt-auto inline-flex h-9 items-center justify-center rounded-md bg-[#3478F6] text-xs font-semibold text-white transition hover:bg-[#2f6ce0]">
-          เปิดดู
-        </Link>
+        <div className="mt-auto flex gap-1.5">
+          <Link href={`/companies/${company.id}`} className="inline-flex h-9 flex-1 items-center justify-center rounded-md bg-[#3478F6] text-xs font-semibold text-white transition hover:bg-[#2f6ce0]">
+            เปิดดู
+          </Link>
+          {showSettings ? (
+            <Link href={`/companies/${company.id}/settings`} aria-label={`ตั้งค่า ${company.name}`}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#244768] text-[#9DB1C8] transition hover:border-[#3ABEF9]/60 hover:text-[#3ABEF9]">
+              <Settings className="h-3.5 w-3.5" />
+            </Link>
+          ) : null}
+        </div>
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ export function MetricCard({
           <Icon className="h-5 w-5" />
         </span>
         <div className="min-w-0">
-          <div className="truncate text-2xl font-bold leading-none text-white">{value}</div>
+          <div className="text-2xl font-bold leading-none text-white">{value}</div>
           <div className="mt-1 truncate text-xs text-slate-400">{label}</div>
         </div>
       </div>

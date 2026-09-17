@@ -2,7 +2,7 @@ import Link from "next/link";
 import { listAccessibleCompanies } from "@/lib/data/companies";
 import { PageHeader, EmptyState, ErrorState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
-import { CompanyBuildingCardCompact } from "@/components/companies/CompanyBuildingCard";
+import { CompanyBuildingCard } from "@/components/companies/CompanyBuildingCard";
 import { showTestDataFrom, canToggleTestData } from "@/lib/test-data";
 
 export const dynamic = "force-dynamic";
@@ -49,11 +49,14 @@ export default async function CompaniesPage({ searchParams }: { searchParams: { 
       ) : (
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {companies.map((c) => (
-            <CompanyBuildingCardCompact
+            <CompanyBuildingCard
               key={c.id}
+              showSettings
               company={{
                 id: c.id, name: c.name, legalName: c.legalName, status: c.status,
-                departments: c._count.departments, workers: c._count.workers, projects: c._count.projects,
+                themeKey: c.themeKey,
+                departments: c._count.departments, workers: c._count.workers,
+                projects: c._count.projects, activeTasks: c.activeTasks,
               }}
             />
           ))}

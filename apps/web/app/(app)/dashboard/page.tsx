@@ -31,7 +31,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
     <>
       <PageHeader title="แดชบอร์ด" description="ภาพรวมทุกบริษัทที่คุณเข้าถึงได้" />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-8">
         <MetricCard icon={Building2} label="Companies" value={metrics.companies} tone="blue" />
         <MetricCard icon={LayersIcon} label="Departments" value={metrics.departments} tone="slate" />
         <MetricCard icon={Bot} label="AI Workers" value={metrics.workers} tone="purple" />
@@ -72,7 +72,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
             {companies.map((c, i) => (
               <CompanyBuildingCard
                 key={c.id}
-                selected={i === 0}
                 company={{ id: c.id, name: c.name, legalName: c.legalName, status: c.status, departments: c.departments, workers: c.workers, activeTasks: c.activeTasks }}
               />
             ))}
